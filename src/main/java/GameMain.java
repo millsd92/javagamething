@@ -2,6 +2,8 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +14,13 @@ public final class GameMain extends JFrame
     private ImagePanel pnlBackground;
 
     //---------- Defining Colors ----------//
-    public static final Color DEFAULT_BACKGROUND_COLOR = new Color(88, 88, 100);
-    public static final Color DEFAULT_TEXT_COLOR = new Color(235, 235, 215);
+    public static final Color BACKGROUND_COLOR = new Color(88, 88, 100);
+    public static final Color TEXT_COLOR = new Color(235, 235, 215);
+    public static final Color TEXT_HIGHLIGHT = Color.WHITE;
+    public static final Color BUTTON_COLOR = new Color(64, 64, 88);
+    public static final Color BUTTON_BORDER_COLOR = new Color(55, 55, 64);
+    public static final Color BUTTON_HIGHLIGHT = new Color(50, 50, 62);
+    public static final Color BUTTON_BORDER_HIGHLIGHT = new Color(34, 34, 52);
 
     //---------- Defining Fonts ----------//
     public static Font PIXEL_FONT_XLARGE;
@@ -57,30 +64,34 @@ public final class GameMain extends JFrame
                     JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
-        //---------- Setting Up Components ----------//
-        JLabel lblPrompt = new JLabel("Please select an option below:");
-        lblPrompt.setForeground(DEFAULT_TEXT_COLOR);
-        lblPrompt.setFont(PIXEL_FONT_XLARGE);
-        lblPrompt.setHorizontalAlignment(JLabel.CENTER);
-
-        JButton btnPlay = new JButton("Play");
-        btnPlay.setFont(PIXEL_FONT_LARGE);
-
-        JButton btnOptions = new JButton("Options");
-        btnOptions.setFont(PIXEL_FONT_LARGE);
-
-        JButton btnClose = new JButton("Exit");
-        btnClose.setFont(PIXEL_FONT_LARGE);
-        btnClose.addActionListener((ActionEvent) ->
-        { dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)); });
 
         //---------- Setting Up Containers ----------//
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
         constraints.fill = GridBagConstraints.HORIZONTAL;
+
         JPanel pnlInput = new JPanel();
-        pnlInput.setBackground(DEFAULT_BACKGROUND_COLOR);
+        pnlInput.setBackground(BACKGROUND_COLOR);
         pnlInput.setLayout(new GridBagLayout());
+
+        pnlBackground.setBackground(BACKGROUND_COLOR);
+        pnlBackground.setPreferredSize(new Dimension(670, 400));
+
+        //---------- Setting Up Components ----------//
+        JLabel lblPrompt = new JLabel("Please select an option below:");
+        lblPrompt.setForeground(TEXT_COLOR);
+        lblPrompt.setFont(PIXEL_FONT_XLARGE);
+        lblPrompt.setHorizontalAlignment(JLabel.CENTER);
+
+        JButton btnPlay = new JButton("Play");
+
+        JButton btnOptions = new JButton("Options");
+
+        JButton btnClose = new JButton("Exit");
+        btnClose.addActionListener((ActionEvent) ->
+        { dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)); });
+
+        //---------- Adding Components to Containers -----------//
         constraints.gridwidth = 3;
         pnlInput.add(lblPrompt, constraints);
         constraints.gridwidth = 1;
@@ -92,13 +103,70 @@ public final class GameMain extends JFrame
         constraints.gridx = 2;
         pnlInput.add(btnClose, constraints);
 
-        pnlBackground.setBackground(DEFAULT_BACKGROUND_COLOR);
-        pnlBackground.setPreferredSize(new Dimension(670, 400));
-
         add(pnlBackground, BorderLayout.NORTH);
         add(pnlInput);
+        setButtonEffects(pnlInput);
         pack();
         setLocationRelativeTo(null);
+    }
+
+    /*
+     * Sets effects on all buttons.
+     */
+    private void setButtonEffects(Container container)
+    {
+        for (Component component : container.getComponents())
+        {
+            if (component instanceof JButton)
+            {
+                component.setFont(PIXEL_FONT_LARGE);
+                ((JButton) component).setBorder(BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, 3));
+                ((JButton) component).setFocusPainted(false);
+                ((JButton) component).setContentAreaFilled(false);
+                ((JButton) component).setOpaque(true);
+                ((JButton) component).setMargin(new Insets(5, 5, 5, 5));
+                component.setForeground(TEXT_COLOR);
+                component.setBackground(BUTTON_COLOR);
+                component.addMouseListener(new ButtonMouseListener());
+            }
+        }
+    }
+
+    private static final class ButtonMouseListener implements MouseListener
+    {
+
+        @Override
+        public void mouseClicked(MouseEvent e) { }
+
+        @Override
+        public void mousePressed(MouseEvent e) { }
+
+        @Override
+        public void mouseReleased(MouseEvent e) { }
+
+        @Override
+        public void mouseEntered(MouseEvent e)
+        {
+            if (e.getSource() instanceof JButton)
+            {
+                JButton source = (JButton)e.getSource();
+                source.setBorder(BorderFactory.createLineBorder(GameMain.BUTTON_BORDER_HIGHLIGHT, 3));
+                source.setBackground(GameMain.BUTTON_HIGHLIGHT);
+                source.setForeground(GameMain.TEXT_HIGHLIGHT);
+            }
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e)
+        {
+            if (e.getSource() instanceof JButton)
+            {
+                JButton source = (JButton)e.getSource();
+                source.setBorder(BorderFactory.createLineBorder(GameMain.BUTTON_BORDER_COLOR, 3));
+                source.setBackground(GameMain.BUTTON_COLOR);
+                source.setForeground(GameMain.TEXT_COLOR);
+            }
+        }
     }
 
     /*
