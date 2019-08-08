@@ -1,6 +1,7 @@
 // Necessary imports.
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -10,21 +11,34 @@ import java.io.IOException;
 
 public final class GameMain extends JFrame
 {
+    //---------- Defining Class Constants -----------//
+    private static final int BUTTON_BORDER_THICKNESS = 5;
+
     //---------- Defining Necessary GUI Components ----------//
     private ImagePanel pnlBackground;
 
     //---------- Defining Colors ----------//
     public static final Color BACKGROUND_COLOR = new Color(88, 88, 100);
     public static final Color TEXT_COLOR = new Color(235, 235, 215);
-    public static final Color TEXT_HIGHLIGHT = Color.WHITE;
+    public static final Color TEXT_HIGHLIGHT_COLOR = Color.WHITE;
     public static final Color BUTTON_COLOR = new Color(64, 64, 88);
     public static final Color BUTTON_BORDER_COLOR = new Color(55, 55, 64);
-    public static final Color BUTTON_HIGHLIGHT = new Color(50, 50, 62);
-    public static final Color BUTTON_BORDER_HIGHLIGHT = new Color(34, 34, 52);
+    public static final Color BUTTON_HIGHLIGHT_COLOR = new Color(50, 50, 62);
+    public static final Color BUTTON_BORDER_HIGHLIGHT_COLOR = new Color(34, 34, 52);
 
     //---------- Defining Fonts ----------//
     public static Font PIXEL_FONT_XLARGE;
     public static Font PIXEL_FONT_LARGE;
+
+    //---------- Defining Borders ----------//
+    public static final Border BUTTON_BORDER = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, BUTTON_BORDER_THICKNESS),
+            BorderFactory.createEmptyBorder(10, 0, 10, 0)
+    );
+    public static final Border BUTTON_BORDER_HIGHLIGHT = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, BUTTON_BORDER_THICKNESS),
+            BorderFactory.createEmptyBorder(10, 0, 10, 0)
+    );
 
     private GameMain()
     {
@@ -120,11 +134,10 @@ public final class GameMain extends JFrame
             if (component instanceof JButton)
             {
                 component.setFont(PIXEL_FONT_LARGE);
-                ((JButton) component).setBorder(BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, 3));
+                ((JButton) component).setBorder(BUTTON_BORDER);
                 ((JButton) component).setFocusPainted(false);
                 ((JButton) component).setContentAreaFilled(false);
                 ((JButton) component).setOpaque(true);
-                ((JButton) component).setMargin(new Insets(5, 5, 5, 5));
                 component.setForeground(TEXT_COLOR);
                 component.setBackground(BUTTON_COLOR);
                 component.addMouseListener(new ButtonMouseListener());
@@ -132,6 +145,9 @@ public final class GameMain extends JFrame
         }
     }
 
+    /*
+     * A MouseListener that highlights the foreground and background of the button when the mouse enters.
+     */
     private static final class ButtonMouseListener implements MouseListener
     {
 
@@ -150,9 +166,9 @@ public final class GameMain extends JFrame
             if (e.getSource() instanceof JButton)
             {
                 JButton source = (JButton)e.getSource();
-                source.setBorder(BorderFactory.createLineBorder(GameMain.BUTTON_BORDER_HIGHLIGHT, 3));
-                source.setBackground(GameMain.BUTTON_HIGHLIGHT);
-                source.setForeground(GameMain.TEXT_HIGHLIGHT);
+                source.setBorder(BUTTON_BORDER_HIGHLIGHT);
+                source.setBackground(GameMain.BUTTON_HIGHLIGHT_COLOR);
+                source.setForeground(GameMain.TEXT_HIGHLIGHT_COLOR);
             }
         }
 
@@ -162,7 +178,7 @@ public final class GameMain extends JFrame
             if (e.getSource() instanceof JButton)
             {
                 JButton source = (JButton)e.getSource();
-                source.setBorder(BorderFactory.createLineBorder(GameMain.BUTTON_BORDER_COLOR, 3));
+                source.setBorder(BUTTON_BORDER);
                 source.setBackground(GameMain.BUTTON_COLOR);
                 source.setForeground(GameMain.TEXT_COLOR);
             }
