@@ -1,4 +1,6 @@
 // Necessary imports.
+import org.jetbrains.annotations.NotNull;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -13,6 +15,7 @@ public final class GameMain extends JFrame
 {
     //---------- Defining Class Constants -----------//
     private static final int BUTTON_BORDER_THICKNESS = 5;
+    private static final int BUTTON_SHADOW_THICKNESS = 3;
 
     //---------- Defining Necessary GUI Components ----------//
     private ImagePanel pnlBackground;
@@ -25,6 +28,8 @@ public final class GameMain extends JFrame
     public static final Color BUTTON_BORDER_COLOR = new Color(55, 55, 64);
     public static final Color BUTTON_HIGHLIGHT_COLOR = new Color(50, 50, 62);
     public static final Color BUTTON_BORDER_HIGHLIGHT_COLOR = new Color(34, 34, 52);
+    public static final Color BUTTON_SHADOW_COLOR = new Color(30, 30, 50);
+    public static final Color BUTTON_SHADOW_HIGHLIGHT_COLOR = new Color(22, 22, 43);
 
     //---------- Defining Fonts ----------//
     public static Font PIXEL_FONT_XLARGE;
@@ -32,11 +37,27 @@ public final class GameMain extends JFrame
 
     //---------- Defining Borders ----------//
     public static final Border BUTTON_BORDER = BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, BUTTON_BORDER_THICKNESS),
+            BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS,
+                            BUTTON_SHADOW_COLOR),
+                    BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, BUTTON_BORDER_THICKNESS)
+            ),
             BorderFactory.createEmptyBorder(10, 0, 10, 0)
     );
     public static final Border BUTTON_BORDER_HIGHLIGHT = BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, BUTTON_BORDER_THICKNESS),
+            BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS,
+                            BUTTON_SHADOW_HIGHLIGHT_COLOR),
+                    BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, BUTTON_BORDER_THICKNESS)
+            ),
+            BorderFactory.createEmptyBorder(10, 0, 10, 0)
+    );
+    public static final Border BUTTON_BORDER_CLICKED = BorderFactory.createCompoundBorder(
+            BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS, 0, 0,
+                            BACKGROUND_COLOR),
+                    BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, BUTTON_BORDER_THICKNESS)
+            ),
             BorderFactory.createEmptyBorder(10, 0, 10, 0)
     );
 
@@ -103,7 +124,7 @@ public final class GameMain extends JFrame
 
         JButton btnClose = new JButton("Exit");
         btnClose.addActionListener((ActionEvent) ->
-        { dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)); });
+                dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
 
         //---------- Adding Components to Containers -----------//
         constraints.gridwidth = 3;
@@ -127,7 +148,7 @@ public final class GameMain extends JFrame
     /*
      * Sets effects on all buttons.
      */
-    private void setButtonEffects(Container container)
+    private void setButtonEffects(@NotNull Container container)
     {
         for (Component component : container.getComponents())
         {
@@ -146,26 +167,49 @@ public final class GameMain extends JFrame
     }
 
     /*
-     * A MouseListener that highlights the foreground and background of the button when the mouse enters.
+     * A MouseListener that highlights the foreground and background of the button when the mouse enters and clicks.
      */
     private static final class ButtonMouseListener implements MouseListener
     {
+        private boolean isMouseInsideButton = false;
 
         @Override
         public void mouseClicked(MouseEvent e) { }
 
         @Override
-        public void mousePressed(MouseEvent e) { }
-
-        @Override
-        public void mouseReleased(MouseEvent e) { }
-
-        @Override
-        public void mouseEntered(MouseEvent e)
+        public void mousePressed(@NotNull MouseEvent e)
         {
             if (e.getSource() instanceof JButton)
             {
-                JButton source = (JButton)e.getSource();
+                JButton source = (JButton) e.getSource();
+                source.setBorder(BUTTON_BORDER_CLICKED);
+                source.setLocation(source.getLocation().x + BUTTON_SHADOW_THICKNESS, source.getLocation().y
+                        + BUTTON_SHADOW_THICKNESS);
+            }
+        }
+
+        @Override
+        public void mouseReleased(@NotNull MouseEvent e)
+        {
+            if (e.getSource() instanceof JButton)
+            {
+                JButton source = (JButton) e.getSource();
+                source.setLocation(source.getLocation().x - BUTTON_SHADOW_THICKNESS, source.getLocation().y
+                        - BUTTON_SHADOW_THICKNESS);
+                if (isMouseInsideButton)
+                    mouseEntered(e);
+                else
+                    mouseExited(e);
+            }
+        }
+
+        @Override
+        public void mouseEntered(@NotNull MouseEvent e)
+        {
+            if (e.getSource() instanceof JButton)
+            {
+                isMouseInsideButton = true;
+                JButton source = (JButton) e.getSource();
                 source.setBorder(BUTTON_BORDER_HIGHLIGHT);
                 source.setBackground(GameMain.BUTTON_HIGHLIGHT_COLOR);
                 source.setForeground(GameMain.TEXT_HIGHLIGHT_COLOR);
@@ -173,10 +217,11 @@ public final class GameMain extends JFrame
         }
 
         @Override
-        public void mouseExited(MouseEvent e)
+        public void mouseExited(@NotNull MouseEvent e)
         {
             if (e.getSource() instanceof JButton)
             {
+                isMouseInsideButton = false;
                 JButton source = (JButton)e.getSource();
                 source.setBorder(BUTTON_BORDER);
                 source.setBackground(GameMain.BUTTON_COLOR);
