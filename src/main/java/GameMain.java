@@ -4,12 +4,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public final class GameMain extends JFrame
 {
@@ -19,6 +20,9 @@ public final class GameMain extends JFrame
 
     //---------- Defining Necessary GUI Components ----------//
     private ImagePanel pnlBackground;
+    private final JButton btnApply;
+    private final JCheckBox chkFullScreen;
+    private final JComboBox<String> cmbResolutions;
 
     //---------- Defining Colors ----------//
     public static final Color BACKGROUND_COLOR = new Color(88, 88, 100);
@@ -30,6 +34,10 @@ public final class GameMain extends JFrame
     public static final Color BUTTON_BORDER_HIGHLIGHT_COLOR = new Color(34, 34, 52);
     public static final Color BUTTON_SHADOW_COLOR = new Color(30, 30, 50);
     public static final Color BUTTON_SHADOW_HIGHLIGHT_COLOR = new Color(22, 22, 43);
+
+    //---------- Defining Class Variables ---------//
+    private int screenResolutionIndex = 0;
+    private boolean fullScreen = false;
 
     //---------- Defining Fonts ----------//
     public static Font PIXEL_FONT_XLARGE;
@@ -109,6 +117,10 @@ public final class GameMain extends JFrame
         pnlInput.setBackground(BACKGROUND_COLOR);
         pnlInput.setLayout(new GridBagLayout());
 
+        JPanel pnlOptions = new JPanel();
+        pnlOptions.setBackground(BACKGROUND_COLOR);
+        pnlOptions.setLayout(new GridBagLayout());
+
         pnlBackground.setBackground(BACKGROUND_COLOR);
         pnlBackground.setPreferredSize(new Dimension(670, 400));
 
@@ -118,9 +130,64 @@ public final class GameMain extends JFrame
         lblPrompt.setFont(PIXEL_FONT_XLARGE);
         lblPrompt.setHorizontalAlignment(JLabel.CENTER);
 
+        btnApply = new JButton("Apply");
+        btnApply.setEnabled(false);
+
+        cmbResolutions = new JComboBox<>(getScreenResolutions(getGraphicsConfiguration().getDevice()));
+
+        chkFullScreen = new JCheckBox("Full Screen?");
+        chkFullScreen.setForeground(TEXT_COLOR);
+        chkFullScreen.setBackground(BACKGROUND_COLOR);
+        chkFullScreen.setFont(PIXEL_FONT_LARGE);
+        chkFullScreen.setHorizontalAlignment(JLabel.CENTER);
+        chkFullScreen.addChangeListener((ChangeEvent) ->
+        {
+            if (chkFullScreen.isSelected() != fullScreen)
+                btnApply.setEnabled(true);
+            else if (btnApply.isEnabled() && cmbResolutions.getSelectedIndex() == screenResolutionIndex)
+                btnApply.setEnabled(false);
+        });
+
+        cmbResolutions.setForeground(TEXT_COLOR);
+        cmbResolutions.setBackground(BACKGROUND_COLOR);
+        cmbResolutions.setFont(PIXEL_FONT_LARGE);
+        cmbResolutions.addItemListener((ItemEvent) ->
+        {
+            if (cmbResolutions.getSelectedIndex() != screenResolutionIndex)
+                btnApply.setEnabled(true);
+            else if (btnApply.isEnabled() && chkFullScreen.isSelected() == fullScreen)
+                btnApply.setEnabled(false);
+        });
+
         JButton btnPlay = new JButton("Play");
 
         JButton btnOptions = new JButton("Options");
+        btnOptions.addActionListener((ActionEvent) ->
+        {
+            remove(pnlInput);
+            add(pnlOptions);
+            pack();
+        });
+
+        btnApply.addActionListener((ActionEvent) ->
+        {
+            fullScreen = chkFullScreen.isSelected();
+            screenResolutionIndex = cmbResolutions.getSelectedIndex();
+            btnApply.setEnabled(false);
+            remove(pnlOptions);
+            add(pnlInput);
+            pack();
+        });
+
+        JButton btnBack = new JButton("Back");
+        btnBack.addActionListener((ActionEvent) ->
+        {
+            chkFullScreen.setSelected(fullScreen);
+            cmbResolutions.setSelectedIndex(screenResolutionIndex);
+            remove(pnlOptions);
+            add(pnlInput);
+            pack();
+        });
 
         JButton btnClose = new JButton("Exit");
         btnClose.addActionListener((ActionEvent) ->
@@ -138,9 +205,24 @@ public final class GameMain extends JFrame
         constraints.gridx = 2;
         pnlInput.add(btnClose, constraints);
 
+        constraints.weightx = 1f;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 2;
+        pnlOptions.add(chkFullScreen, constraints);
+        constraints.gridy = 1;
+        pnlOptions.add(cmbResolutions, constraints);
+        constraints.weightx = 0.5f;
+        constraints.gridy = 2;
+        constraints.gridwidth = 1;
+        pnlOptions.add(btnBack, constraints);
+        constraints.gridx = 1;
+        pnlOptions.add(btnApply, constraints);
+
         add(pnlBackground, BorderLayout.NORTH);
         add(pnlInput);
         setButtonEffects(pnlInput);
+        setButtonEffects(pnlOptions);
         pack();
         setLocationRelativeTo(null);
     }
@@ -164,6 +246,29 @@ public final class GameMain extends JFrame
                 component.addMouseListener(new ButtonMouseListener());
             }
         }
+    }
+
+    @NotNull
+    private String[] getScreenResolutions(GraphicsDevice currentDevice)
+    {
+        HashSet<String> screenResolutionSet = new HashSet<>();
+        GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+        int i;
+        for (i = 0; i < devices.length; i++)
+            if (devices[i].equals(currentDevice))
+                break;
+
+        DisplayMode[] modes = devices[i].getDisplayModes();
+        for (DisplayMode mode : modes)
+            screenResolutionSet.add(mode.getWidth() + "x" + mode.getHeight());
+        String[] screenResolutions = screenResolutionSet.toArray(new String[0]);
+        Arrays.sort(screenResolutions, (stringOne, stringTwo) ->
+        {
+            int integerOne = Integer.parseInt(stringOne.substring(0, stringOne.indexOf("x")));
+            int integerTwo = Integer.parseInt(stringTwo.substring(0, stringTwo.indexOf("x")));
+            return integerTwo - integerOne;
+        });
+        return screenResolutions;
     }
 
     /*
