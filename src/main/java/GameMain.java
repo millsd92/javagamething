@@ -1,10 +1,8 @@
 // Necessary imports.
 import org.jetbrains.annotations.NotNull;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -17,6 +15,7 @@ public final class GameMain extends JFrame
     //---------- Defining Class Constants -----------//
     private static final int BUTTON_BORDER_THICKNESS = 5;
     private static final int BUTTON_SHADOW_THICKNESS = 3;
+    private static final long START_TIME_IN_MILLISECONDS = System.currentTimeMillis();
 
     //---------- Defining Necessary GUI Components ----------//
     private ImagePanel pnlBackground;
@@ -25,26 +24,26 @@ public final class GameMain extends JFrame
     private final JComboBox<String> cmbResolutions;
 
     //---------- Defining Colors ----------//
-    public static final Color BACKGROUND_COLOR = new Color(88, 88, 100);
-    public static final Color TEXT_COLOR = new Color(235, 235, 215);
-    public static final Color TEXT_HIGHLIGHT_COLOR = Color.WHITE;
-    public static final Color BUTTON_COLOR = new Color(64, 64, 88);
-    public static final Color BUTTON_BORDER_COLOR = new Color(55, 55, 64);
-    public static final Color BUTTON_HIGHLIGHT_COLOR = new Color(50, 50, 62);
-    public static final Color BUTTON_BORDER_HIGHLIGHT_COLOR = new Color(34, 34, 52);
-    public static final Color BUTTON_SHADOW_COLOR = new Color(30, 30, 50);
-    public static final Color BUTTON_SHADOW_HIGHLIGHT_COLOR = new Color(22, 22, 43);
+    private static final Color BACKGROUND_COLOR = new Color(88, 88, 100);
+    private static final Color TEXT_COLOR = new Color(235, 235, 215);
+    private static final Color TEXT_HIGHLIGHT_COLOR = Color.WHITE;
+    private static final Color BUTTON_COLOR = new Color(64, 64, 88);
+    private static final Color BUTTON_BORDER_COLOR = new Color(55, 55, 64);
+    private static final Color BUTTON_HIGHLIGHT_COLOR = new Color(50, 50, 62);
+    private static final Color BUTTON_BORDER_HIGHLIGHT_COLOR = new Color(34, 34, 52);
+    private static final Color BUTTON_SHADOW_COLOR = new Color(30, 30, 50);
+    private static final Color BUTTON_SHADOW_HIGHLIGHT_COLOR = new Color(22, 22, 43);
 
     //---------- Defining Class Variables ---------//
     private int screenResolutionIndex = 0;
     private boolean fullScreen = false;
 
     //---------- Defining Fonts ----------//
-    public static Font PIXEL_FONT_XLARGE;
-    public static Font PIXEL_FONT_LARGE;
+    private static Font PIXEL_FONT_XLARGE;
+    private static Font PIXEL_FONT_LARGE;
 
     //---------- Defining Borders ----------//
-    public static final Border BUTTON_BORDER = BorderFactory.createCompoundBorder(
+    private static final Border BUTTON_BORDER = BorderFactory.createCompoundBorder(
             BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(0, 0, BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS,
                             BUTTON_SHADOW_COLOR),
@@ -52,7 +51,7 @@ public final class GameMain extends JFrame
             ),
             BorderFactory.createEmptyBorder(10, 0, 10, 0)
     );
-    public static final Border BUTTON_BORDER_HIGHLIGHT = BorderFactory.createCompoundBorder(
+    private static final Border BUTTON_BORDER_HIGHLIGHT = BorderFactory.createCompoundBorder(
             BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(0, 0, BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS,
                             BUTTON_SHADOW_HIGHLIGHT_COLOR),
@@ -60,7 +59,7 @@ public final class GameMain extends JFrame
             ),
             BorderFactory.createEmptyBorder(10, 0, 10, 0)
     );
-    public static final Border BUTTON_BORDER_CLICKED = BorderFactory.createCompoundBorder(
+    private static final Border BUTTON_BORDER_CLICKED = BorderFactory.createCompoundBorder(
             BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS, 0, 0,
                             BACKGROUND_COLOR),
@@ -135,7 +134,21 @@ public final class GameMain extends JFrame
 
         cmbResolutions = new JComboBox<>(getScreenResolutions(getGraphicsConfiguration().getDevice()));
 
-        chkFullScreen = new JCheckBox("Full Screen?");
+        CheckBoxIcon icon = null;
+        try
+        {
+            icon = new CheckBoxIcon();
+        }
+        catch (IOException ex)
+        {
+            JOptionPane.showConfirmDialog(this,
+                    "Missing image files! Reinstall and try again. Exiting.", "Error!",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        }
+
+        chkFullScreen = new JCheckBox("Full Screen?", icon);
+        chkFullScreen.setIconTextGap(5);
         chkFullScreen.setForeground(TEXT_COLOR);
         chkFullScreen.setBackground(BACKGROUND_COLOR);
         chkFullScreen.setFont(PIXEL_FONT_LARGE);
@@ -166,6 +179,7 @@ public final class GameMain extends JFrame
         {
             remove(pnlInput);
             add(pnlOptions);
+            ((ButtonMouseListener) btnOptions.getMouseListeners()[1]).isMouseInsideButton = false;
             pack();
         });
 
@@ -176,6 +190,7 @@ public final class GameMain extends JFrame
             btnApply.setEnabled(false);
             remove(pnlOptions);
             add(pnlInput);
+            ((ButtonMouseListener) btnApply.getMouseListeners()[1]).isMouseInsideButton = false;
             pack();
         });
 
@@ -186,6 +201,7 @@ public final class GameMain extends JFrame
             cmbResolutions.setSelectedIndex(screenResolutionIndex);
             remove(pnlOptions);
             add(pnlInput);
+            ((ButtonMouseListener) btnBack.getMouseListeners()[1]).isMouseInsideButton = false;
             pack();
         });
 
@@ -248,6 +264,10 @@ public final class GameMain extends JFrame
         }
     }
 
+    /*
+     * Using the graphics environment, determines what display is the main one and what resolutions are available
+     * for that display.
+     */
     @NotNull
     private String[] getScreenResolutions(GraphicsDevice currentDevice)
     {
@@ -350,6 +370,46 @@ public final class GameMain extends JFrame
         {
             super.paintComponent(g);
             g.drawImage(image, 0, 0, null);
+        }
+    }
+
+    /*
+     * A private, inner class that allows for a custom checkbox image.
+     */
+    private static final class CheckBoxIcon implements Icon
+    {
+        private ImageIcon unchecked;
+        private ImageIcon checked;
+        private static final int IMAGE_SIZE = 17;
+
+        private CheckBoxIcon() throws IOException
+        {
+            unchecked = new ImageIcon("javagamething" + File.separator + "src"
+                    + File.separator + "resources" + File.separator + "images" + File.separator
+                    + "unchecked.png");
+            checked = new ImageIcon("javagamething" + File.separator + "src"
+                    + File.separator + "resources" + File.separator + "images" + File.separator
+                    + "checked.png");
+        }
+
+        @Override
+        public void paintIcon(Component component, Graphics graphics, int x, int y)
+        {
+            ButtonModel model = ((AbstractButton) component).getModel();
+            ImageIcon currentIcon = (model.isSelected() ? checked : unchecked);
+            graphics.drawImage(currentIcon.getImage(), 0, 0, null);
+        }
+
+        @Override
+        public int getIconWidth()
+        {
+            return IMAGE_SIZE;
+        }
+
+        @Override
+        public int getIconHeight()
+        {
+            return IMAGE_SIZE;
         }
     }
 
