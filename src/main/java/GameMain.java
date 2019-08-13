@@ -3,6 +3,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -12,10 +16,15 @@ import java.util.HashSet;
 
 public final class GameMain extends JFrame
 {
+    //---------- Defining All Class Variables ----------//
+    //<editor-fold desc="Defining All Class Variables">
     //---------- Defining Class Constants -----------//
     private static final int BUTTON_BORDER_THICKNESS = 5;
     private static final int BUTTON_SHADOW_THICKNESS = 3;
-    private static final long START_TIME_IN_MILLISECONDS = System.currentTimeMillis();
+    private static final int TINY_BUTTON_BORDER_THICKNESS = 3;
+    private static final int TINY_BUTTON_SHADOW_THICKNESS = 1;
+    private static final int BUTTON_INSIDE_BORDER_THICKNESS = 10;
+    //public static final long START_TIME_IN_MILLISECONDS = System.currentTimeMillis();
 
     //---------- Defining Necessary GUI Components ----------//
     private ImagePanel pnlBackground;
@@ -28,13 +37,14 @@ public final class GameMain extends JFrame
     private static final Color TEXT_COLOR = new Color(235, 235, 215);
     private static final Color TEXT_HIGHLIGHT_COLOR = Color.WHITE;
     private static final Color BUTTON_COLOR = new Color(64, 64, 88);
+    private static final Color SCROLLBAR_COLOR = new Color(60, 60, 76);
     private static final Color BUTTON_BORDER_COLOR = new Color(55, 55, 64);
     private static final Color BUTTON_HIGHLIGHT_COLOR = new Color(50, 50, 62);
     private static final Color BUTTON_BORDER_HIGHLIGHT_COLOR = new Color(34, 34, 52);
     private static final Color BUTTON_SHADOW_COLOR = new Color(30, 30, 50);
     private static final Color BUTTON_SHADOW_HIGHLIGHT_COLOR = new Color(22, 22, 43);
 
-    //---------- Defining Class Variables ---------//
+    //---------- Defining Variables ---------//
     private int screenResolutionIndex = 0;
     private boolean fullScreen = false;
 
@@ -49,7 +59,8 @@ public final class GameMain extends JFrame
                             BUTTON_SHADOW_COLOR),
                     BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, BUTTON_BORDER_THICKNESS)
             ),
-            BorderFactory.createEmptyBorder(10, 0, 10, 0)
+            BorderFactory.createEmptyBorder(BUTTON_INSIDE_BORDER_THICKNESS, 0, BUTTON_INSIDE_BORDER_THICKNESS,
+                    0)
     );
     private static final Border BUTTON_BORDER_HIGHLIGHT = BorderFactory.createCompoundBorder(
             BorderFactory.createCompoundBorder(
@@ -57,16 +68,34 @@ public final class GameMain extends JFrame
                             BUTTON_SHADOW_HIGHLIGHT_COLOR),
                     BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, BUTTON_BORDER_THICKNESS)
             ),
-            BorderFactory.createEmptyBorder(10, 0, 10, 0)
+            BorderFactory.createEmptyBorder(BUTTON_INSIDE_BORDER_THICKNESS, 0, BUTTON_INSIDE_BORDER_THICKNESS,
+                    0)
     );
     private static final Border BUTTON_BORDER_CLICKED = BorderFactory.createCompoundBorder(
             BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS, 0, 0,
-                            BACKGROUND_COLOR),
+                    BorderFactory.createMatteBorder(BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_THICKNESS,
+                            0, 0, BACKGROUND_COLOR),
                     BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, BUTTON_BORDER_THICKNESS)
             ),
-            BorderFactory.createEmptyBorder(10, 0, 10, 0)
+            BorderFactory.createEmptyBorder(BUTTON_INSIDE_BORDER_THICKNESS, 0, BUTTON_INSIDE_BORDER_THICKNESS,
+                    0)
     );
+    private static final Border TINY_BUTTON_BORDER = BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, TINY_BUTTON_SHADOW_THICKNESS,
+                    TINY_BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_COLOR),
+            BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, TINY_BUTTON_BORDER_THICKNESS)
+    );
+    private static final Border TINY_BUTTON_BORDER_HIGHLIGHT = BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, TINY_BUTTON_SHADOW_THICKNESS,
+                    TINY_BUTTON_SHADOW_THICKNESS, BUTTON_SHADOW_HIGHLIGHT_COLOR),
+            BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, TINY_BUTTON_BORDER_THICKNESS)
+    );
+    private static final Border TINY_BUTTON_BORDER_CLICKED = BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(TINY_BUTTON_SHADOW_THICKNESS,
+                    TINY_BUTTON_SHADOW_THICKNESS, 0, 0, BACKGROUND_COLOR),
+            BorderFactory.createLineBorder(BUTTON_BORDER_HIGHLIGHT_COLOR, TINY_BUTTON_BORDER_THICKNESS)
+    );
+    //</editor-fold>
 
     private GameMain()
     {
@@ -75,6 +104,7 @@ public final class GameMain extends JFrame
         setTitle("Welcome to the Game...");
 
         //---------- Retrieving Background Image ----------//
+        //<editor-fold desc="Retrieving Background Image">
         try
         {
             pnlBackground = new ImagePanel(ImageIO.read(new File("javagamething" + File.separator + "src"
@@ -88,8 +118,10 @@ public final class GameMain extends JFrame
                     JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
+        //</editor-fold>
 
         //---------- Setting Up Font ----------//
+        //<editor-fold desc="Setting Up Font">
         try
         {
             PIXEL_FONT_XLARGE = Font.createFont(Font.TRUETYPE_FONT, new File("javagamething" + File.separator
@@ -106,8 +138,10 @@ public final class GameMain extends JFrame
                     JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
+        //</editor-fold>
 
         //---------- Setting Up Containers ----------//
+        //<editor-fold desc="Setting Up Containers">
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -123,7 +157,10 @@ public final class GameMain extends JFrame
         pnlBackground.setBackground(BACKGROUND_COLOR);
         pnlBackground.setPreferredSize(new Dimension(670, 400));
 
+        //</editor-fold>
+
         //---------- Setting Up Components ----------//
+        //<editor-fold desc="Setting Up Components">
         JLabel lblPrompt = new JLabel("Please select an option below:");
         lblPrompt.setForeground(TEXT_COLOR);
         lblPrompt.setFont(PIXEL_FONT_XLARGE);
@@ -134,25 +171,16 @@ public final class GameMain extends JFrame
 
         cmbResolutions = new JComboBox<>(getScreenResolutions(getGraphicsConfiguration().getDevice()));
 
-        CheckBoxIcon icon = null;
-        try
-        {
-            icon = new CheckBoxIcon();
-        }
-        catch (IOException ex)
-        {
-            JOptionPane.showConfirmDialog(this,
-                    "Missing image files! Reinstall and try again. Exiting.", "Error!",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        }
+        CheckBoxIcon icon = new CheckBoxIcon();
 
         chkFullScreen = new JCheckBox("Full Screen?", icon);
-        chkFullScreen.setIconTextGap(5);
+        int CHECKBOX_GAP = 10;
+        chkFullScreen.setIconTextGap(CHECKBOX_GAP);
         chkFullScreen.setForeground(TEXT_COLOR);
         chkFullScreen.setBackground(BACKGROUND_COLOR);
         chkFullScreen.setFont(PIXEL_FONT_LARGE);
-        chkFullScreen.setHorizontalAlignment(JLabel.CENTER);
+        chkFullScreen.setHorizontalAlignment(JCheckBox.CENTER);
+        chkFullScreen.setFocusPainted(false);
         chkFullScreen.addChangeListener((ChangeEvent) ->
         {
             if (chkFullScreen.isSelected() != fullScreen)
@@ -161,9 +189,31 @@ public final class GameMain extends JFrame
                 btnApply.setEnabled(false);
         });
 
-        cmbResolutions.setForeground(TEXT_COLOR);
-        cmbResolutions.setBackground(BACKGROUND_COLOR);
-        cmbResolutions.setFont(PIXEL_FONT_LARGE);
+        CustomMouseListener mouseListener = new CustomMouseListener();
+        mouseListener.isTiny = true;
+        cmbResolutions.setRenderer(new DefaultListCellRenderer()
+        {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus)
+            {
+                Component component = super.getListCellRendererComponent(list, value, index, isSelected,
+                        cellHasFocus);
+                if (isSelected)
+                {
+                    setBackground(BUTTON_HIGHLIGHT_COLOR);
+                    setForeground(TEXT_HIGHLIGHT_COLOR);
+                }
+                else
+                {
+                    setBackground(BUTTON_COLOR);
+                    setForeground(TEXT_COLOR);
+                }
+                return component;
+            }
+        });
+        cmbResolutions.setUI(new CustomComboBoxUI());
+        cmbResolutions.addMouseListener(mouseListener);
         cmbResolutions.addItemListener((ItemEvent) ->
         {
             if (cmbResolutions.getSelectedIndex() != screenResolutionIndex)
@@ -179,7 +229,7 @@ public final class GameMain extends JFrame
         {
             remove(pnlInput);
             add(pnlOptions);
-            ((ButtonMouseListener) btnOptions.getMouseListeners()[1]).isMouseInsideButton = false;
+            ((CustomMouseListener) btnOptions.getMouseListeners()[1]).isMouseInsideButton = false;
             pack();
         });
 
@@ -190,7 +240,7 @@ public final class GameMain extends JFrame
             btnApply.setEnabled(false);
             remove(pnlOptions);
             add(pnlInput);
-            ((ButtonMouseListener) btnApply.getMouseListeners()[1]).isMouseInsideButton = false;
+            ((CustomMouseListener) btnApply.getMouseListeners()[1]).isMouseInsideButton = false;
             pack();
         });
 
@@ -201,7 +251,7 @@ public final class GameMain extends JFrame
             cmbResolutions.setSelectedIndex(screenResolutionIndex);
             remove(pnlOptions);
             add(pnlInput);
-            ((ButtonMouseListener) btnBack.getMouseListeners()[1]).isMouseInsideButton = false;
+            ((CustomMouseListener) btnBack.getMouseListeners()[1]).isMouseInsideButton = false;
             pack();
         });
 
@@ -209,7 +259,10 @@ public final class GameMain extends JFrame
         btnClose.addActionListener((ActionEvent) ->
                 dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
 
+        //</editor-fold>
+
         //---------- Adding Components to Containers -----------//
+        //<editor-fold desc="Adding Components to Containers">
         constraints.gridwidth = 3;
         pnlInput.add(lblPrompt, constraints);
         constraints.gridwidth = 1;
@@ -237,31 +290,53 @@ public final class GameMain extends JFrame
 
         add(pnlBackground, BorderLayout.NORTH);
         add(pnlInput);
-        setButtonEffects(pnlInput);
-        setButtonEffects(pnlOptions);
+        setCustomEffects(pnlInput);
+        setCustomEffects(pnlOptions);
         pack();
         setLocationRelativeTo(null);
+        //</editor-fold>
     }
 
     /*
-     * Sets effects on all buttons.
+     * Sets effects on all buttons and combo boxes.
      */
-    private void setButtonEffects(@NotNull Container container)
+    private void setCustomEffects(@NotNull Container container)
     {
         for (Component component : container.getComponents())
         {
-            if (component instanceof JButton)
+            if (component instanceof JButton || component instanceof JComboBox)
             {
                 component.setFont(PIXEL_FONT_LARGE);
-                ((JButton) component).setBorder(BUTTON_BORDER);
-                ((JButton) component).setFocusPainted(false);
-                ((JButton) component).setContentAreaFilled(false);
-                ((JButton) component).setOpaque(true);
+                if (component instanceof JButton)
+                    ((JComponent) component).setBorder(BUTTON_BORDER);
+                else
+                    ((JComboBox) component).setBorder(TINY_BUTTON_BORDER);
+                if (component instanceof JButton)
+                {
+                    ((JButton) component).setFocusPainted(false);
+                    ((JButton) component).setContentAreaFilled(false);
+                    component.addMouseListener(new CustomMouseListener());
+                }
+                ((JComponent) component).setOpaque(true);
                 component.setForeground(TEXT_COLOR);
                 component.setBackground(BUTTON_COLOR);
-                component.addMouseListener(new ButtonMouseListener());
             }
         }
+    }
+
+    /*
+     * A specified overloaded version of the setCustomEffects method.
+     */
+    private static void setCustomEffects(@NotNull JButton button)
+    {
+        CustomMouseListener tinyCustomMouseListener = new CustomMouseListener();
+        tinyCustomMouseListener.isTiny = true;
+        button.setBorder(TINY_BUTTON_BORDER);
+        button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+        button.setBackground(BUTTON_COLOR);
+        button.addMouseListener(tinyCustomMouseListener);
     }
 
     /*
@@ -286,7 +361,14 @@ public final class GameMain extends JFrame
         {
             int integerOne = Integer.parseInt(stringOne.substring(0, stringOne.indexOf("x")));
             int integerTwo = Integer.parseInt(stringTwo.substring(0, stringTwo.indexOf("x")));
-            return integerTwo - integerOne;
+            if (integerTwo - integerOne != 0)
+                return integerTwo - integerOne;
+            else
+            {
+                integerOne = Integer.parseInt(stringOne.substring(stringOne.indexOf("x") + 1));
+                integerTwo = Integer.parseInt(stringTwo.substring(stringTwo.indexOf("x") + 1));
+                return integerTwo - integerOne;
+            }
         });
         return screenResolutions;
     }
@@ -294,9 +376,10 @@ public final class GameMain extends JFrame
     /*
      * A MouseListener that highlights the foreground and background of the button when the mouse enters and clicks.
      */
-    private static final class ButtonMouseListener implements MouseListener
+    private static final class CustomMouseListener implements MouseListener
     {
         private boolean isMouseInsideButton = false;
+        private boolean isTiny = false;
 
         @Override
         public void mouseClicked(MouseEvent e) { }
@@ -304,23 +387,36 @@ public final class GameMain extends JFrame
         @Override
         public void mousePressed(@NotNull MouseEvent e)
         {
-            if (e.getSource() instanceof JButton)
+            if (e.getSource() instanceof JButton || e.getSource() instanceof JComboBox)
             {
-                JButton source = (JButton) e.getSource();
-                source.setBorder(BUTTON_BORDER_CLICKED);
-                source.setLocation(source.getLocation().x + BUTTON_SHADOW_THICKNESS, source.getLocation().y
-                        + BUTTON_SHADOW_THICKNESS);
+                JComponent source = (JComponent) e.getSource();
+                if (!isTiny)
+                {
+                    source.setBorder(BUTTON_BORDER_CLICKED);
+                    source.setLocation(source.getLocation().x + BUTTON_SHADOW_THICKNESS, source.getLocation().y
+                            + BUTTON_SHADOW_THICKNESS);
+                }
+                else
+                {
+                    source.setBorder(TINY_BUTTON_BORDER_CLICKED);
+                    source.setLocation(source.getLocation().x + TINY_BUTTON_SHADOW_THICKNESS,
+                            source.getLocation().y + TINY_BUTTON_SHADOW_THICKNESS);
+                }
             }
         }
 
         @Override
         public void mouseReleased(@NotNull MouseEvent e)
         {
-            if (e.getSource() instanceof JButton)
+            if (e.getSource() instanceof JButton || e.getSource() instanceof JComboBox)
             {
-                JButton source = (JButton) e.getSource();
-                source.setLocation(source.getLocation().x - BUTTON_SHADOW_THICKNESS, source.getLocation().y
-                        - BUTTON_SHADOW_THICKNESS);
+                JComponent source = (JComponent) e.getSource();
+                if (!isTiny)
+                    source.setLocation(source.getLocation().x - BUTTON_SHADOW_THICKNESS, source.getLocation().y
+                            - BUTTON_SHADOW_THICKNESS);
+                else
+                    source.setLocation(source.getLocation().x - TINY_BUTTON_SHADOW_THICKNESS,
+                            source.getLocation().y - TINY_BUTTON_SHADOW_THICKNESS);
                 if (isMouseInsideButton)
                     mouseEntered(e);
                 else
@@ -331,11 +427,14 @@ public final class GameMain extends JFrame
         @Override
         public void mouseEntered(@NotNull MouseEvent e)
         {
-            if (e.getSource() instanceof JButton)
+            if (e.getSource() instanceof JButton || e.getSource() instanceof JComboBox)
             {
                 isMouseInsideButton = true;
-                JButton source = (JButton) e.getSource();
-                source.setBorder(BUTTON_BORDER_HIGHLIGHT);
+                JComponent source = (JComponent) e.getSource();
+                if (!isTiny)
+                    source.setBorder(BUTTON_BORDER_HIGHLIGHT);
+                else
+                    source.setBorder(TINY_BUTTON_BORDER_HIGHLIGHT);
                 source.setBackground(GameMain.BUTTON_HIGHLIGHT_COLOR);
                 source.setForeground(GameMain.TEXT_HIGHLIGHT_COLOR);
             }
@@ -344,11 +443,14 @@ public final class GameMain extends JFrame
         @Override
         public void mouseExited(@NotNull MouseEvent e)
         {
-            if (e.getSource() instanceof JButton)
+            if (e.getSource() instanceof JButton || e.getSource() instanceof JComboBox)
             {
                 isMouseInsideButton = false;
-                JButton source = (JButton)e.getSource();
-                source.setBorder(BUTTON_BORDER);
+                JComponent source = (JComponent) e.getSource();
+                if (!isTiny)
+                    source.setBorder(BUTTON_BORDER);
+                else
+                    source.setBorder(TINY_BUTTON_BORDER);
                 source.setBackground(GameMain.BUTTON_COLOR);
                 source.setForeground(GameMain.TEXT_COLOR);
             }
@@ -380,9 +482,9 @@ public final class GameMain extends JFrame
     {
         private ImageIcon unchecked;
         private ImageIcon checked;
-        private static final int IMAGE_SIZE = 17;
+        private static final int IMAGE_SIZE = 21;
 
-        private CheckBoxIcon() throws IOException
+        private CheckBoxIcon()
         {
             unchecked = new ImageIcon("javagamething" + File.separator + "src"
                     + File.separator + "resources" + File.separator + "images" + File.separator
@@ -397,7 +499,7 @@ public final class GameMain extends JFrame
         {
             ButtonModel model = ((AbstractButton) component).getModel();
             ImageIcon currentIcon = (model.isSelected() ? checked : unchecked);
-            graphics.drawImage(currentIcon.getImage(), 0, 0, null);
+            graphics.drawImage(currentIcon.getImage(), x, y, null);
         }
 
         @Override
@@ -410,6 +512,102 @@ public final class GameMain extends JFrame
         public int getIconHeight()
         {
             return IMAGE_SIZE;
+        }
+    }
+
+    /*
+     * Custom UI for the JComboBox with a custom arrow button.
+     */
+    private static final class CustomComboBoxUI extends BasicComboBoxUI
+    {
+        @NotNull
+        @Override
+        public JButton createArrowButton()
+        {
+            JButton arrowButton = new JButton(new ImageIcon("javagamething" + File.separator + "src"
+                    + File.separator + "resources" + File.separator + "images" + File.separator
+                    + "comboboxarrow.png"));
+            GameMain.setCustomEffects(arrowButton);
+
+            return arrowButton;
+        }
+
+        @Override
+        public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus)
+        { } // Don't do a thing...
+
+        @Override
+        public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus)
+        { super.paintCurrentValue(g, bounds, false); } // I don't care if it has focus...
+
+        @Override
+        protected ComboPopup createPopup()
+        {
+            return new BasicComboPopup(comboBox)
+            {
+                @Override
+                protected JScrollPane createScroller()
+                {
+                    JScrollPane scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                    scrollPane.getVerticalScrollBar().setBackground(SCROLLBAR_COLOR);
+                    scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI()
+                    {
+                        private ImageIcon getArrow()
+                        {
+                            return new ImageIcon("javagamething" + File.separator + "src"
+                                    + File.separator + "resources" + File.separator + "images" + File.separator
+                                    + "listarrow.png");
+                        }
+
+                        private void setButtonEffects(JButton button)
+                        {
+                            button.setBackground(BUTTON_HIGHLIGHT_COLOR);
+                            button.setFocusPainted(false);
+                            button.setContentAreaFilled(false);
+                            button.setOpaque(true);
+                            button.setBorder(BorderFactory.createEmptyBorder());
+                        }
+
+                        @Override
+                        protected JButton createDecreaseButton(int orientation)
+                        {
+                            JButton decreaseButton = new JButton(getArrow());
+                            setButtonEffects(decreaseButton);
+                            return decreaseButton;
+                        }
+
+                        @Override
+                        protected JButton createIncreaseButton(int orientation)
+                        {
+                            ImageIcon arrow = new ImageIcon("javagamething" + File.separator + "src"
+                                    + File.separator + "resources" + File.separator + "images" + File.separator
+                                    + "listarrow.png") {
+                                @Override
+                                public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
+                                    Graphics2D graphics2D = (Graphics2D) g.create();
+                                    graphics2D.translate(0, getIconHeight());
+                                    graphics2D.scale(1, -1);
+                                    super.paintIcon(c, graphics2D, x, y);
+                                }
+                            };
+                            JButton increaseButton = new JButton(arrow);
+                            setButtonEffects(increaseButton);
+                            return increaseButton;
+                        }
+
+                        @Override
+                        public Dimension getPreferredSize(JComponent c)
+                        { return new Dimension(createArrowButton().getPreferredSize()); }
+
+                        @Override
+                        protected void configureScrollBarColors()
+                        { this.thumbColor = BUTTON_HIGHLIGHT_COLOR; }
+                    });
+
+                    return scrollPane;
+                }
+            };
         }
     }
 
