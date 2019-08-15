@@ -27,7 +27,6 @@ public final class GameMain extends JFrame
     private static final int TINY_BUTTON_BORDER_THICKNESS = 3;
     private static final int TINY_BUTTON_SHADOW_THICKNESS = 1;
     private static final int BUTTON_INSIDE_BORDER_THICKNESS = 10;
-    //public static final long START_TIME_IN_MILLISECONDS = System.currentTimeMillis();
 
     //---------- Defining Necessary GUI Components ----------//
     private ImagePanel pnlBackground;
@@ -178,13 +177,15 @@ public final class GameMain extends JFrame
         CheckBoxIcon icon = new CheckBoxIcon();
 
         chkFullScreen = new JCheckBox("Full Screen?", icon);
-        int CHECKBOX_GAP = 10;
-        chkFullScreen.setIconTextGap(CHECKBOX_GAP);
+        int checkboxGap = 10;
+        chkFullScreen.setIconTextGap(checkboxGap);
         chkFullScreen.setForeground(TEXT_COLOR);
         chkFullScreen.setBackground(BACKGROUND_COLOR);
         chkFullScreen.setFont(PIXEL_FONT_LARGE);
         chkFullScreen.setHorizontalAlignment(JCheckBox.CENTER);
         chkFullScreen.setFocusPainted(false);
+        if (!currentDevice.isFullScreenSupported())
+            chkFullScreen.setEnabled(false);
         chkFullScreen.addChangeListener((ChangeEvent) ->
         {
             if (chkFullScreen.isSelected() != fullScreen)
