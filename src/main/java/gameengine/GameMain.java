@@ -1,3 +1,5 @@
+package gameengine;
+
 // Necessary imports.
 import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
@@ -11,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -47,6 +50,7 @@ public final class GameMain extends JFrame
     //---------- Defining Variables ---------//
     private int screenResolutionIndex = 0;
     private boolean fullScreen = false;
+    private GraphicsDevice currentDevice = getGraphicsConfiguration().getDevice();
 
     //---------- Defining Fonts ----------//
     private static Font PIXEL_FONT_XLARGE;
@@ -169,7 +173,7 @@ public final class GameMain extends JFrame
         btnApply = new JButton("Apply");
         btnApply.setEnabled(false);
 
-        cmbResolutions = new JComboBox<>(getScreenResolutions(getGraphicsConfiguration().getDevice()));
+        cmbResolutions = new JComboBox<>(getScreenResolutions(currentDevice));
 
         CheckBoxIcon icon = new CheckBoxIcon();
 
@@ -223,6 +227,14 @@ public final class GameMain extends JFrame
         });
 
         JButton btnPlay = new JButton("Play");
+        btnPlay.addActionListener((ActionEvent) ->
+        {
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            DisplayMode displayMode = getSelectedDisplayMode();
+            Game game = new Game(displayMode, currentDevice, fullScreen);
+            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+            game.setVisible(true);
+        });
 
         JButton btnOptions = new JButton("Options");
         btnOptions.addActionListener((ActionEvent) ->
@@ -371,6 +383,28 @@ public final class GameMain extends JFrame
             }
         });
         return screenResolutions;
+    }
+
+    /*
+     * Gets the display mode selected in the combo box.
+     */
+    private DisplayMode getSelectedDisplayMode()
+    {
+        String resolutionString = cmbResolutions.getItemAt(screenResolutionIndex);
+        int screenWidth = Integer.parseInt(resolutionString.substring(0, resolutionString.indexOf("x")));
+        int screenHeight = Integer.parseInt(resolutionString.substring(resolutionString.indexOf("x") + 1));
+
+        ArrayList<DisplayMode> modes = new ArrayList<>();
+        for (DisplayMode mode : currentDevice.getDisplayModes())
+            if (mode.getWidth() == screenWidth && mode.getHeight() == screenHeight)
+                modes.add(mode);
+
+        DisplayMode bestMode = modes.get(0);
+        for (DisplayMode mode : modes)
+            if (mode.getBitDepth() > bestMode.getBitDepth())
+                bestMode = mode;
+
+        return bestMode;
     }
 
     /*
