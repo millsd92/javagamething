@@ -2,7 +2,6 @@ package gameengine;
 
 // Necessary imports.
 import org.jetbrains.annotations.NotNull;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboBoxUI;
@@ -29,7 +28,6 @@ public final class GameMain extends JFrame
     private static final int BUTTON_INSIDE_BORDER_THICKNESS = 10;
 
     //---------- Defining Necessary GUI Components ----------//
-    private ImagePanel pnlBackground;
     private final JButton btnApply;
     private final JCheckBox chkFullScreen;
     private final JComboBox<String> cmbResolutions;
@@ -108,19 +106,11 @@ public final class GameMain extends JFrame
 
         //---------- Retrieving Background Image ----------//
         //<editor-fold desc="Retrieving Background Image">
-        try
-        {
-            pnlBackground = new ImagePanel(ImageIO.read(new File("javagamething" + File.separator + "src"
-                    + File.separator + "resources" + File.separator + "images" + File.separator
-                    + "mainmenubackground.png")));
-        }
-        catch (IOException ex)
-        {
-            JOptionPane.showConfirmDialog(this,
-                    "Missing image files! Reinstall and try again. Exiting.", "Error!",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        }
+        JLabel lblBackground = new JLabel(new ImageIcon("javagamething" + File.separator
+                + "src" + File.separator + "resources" + File.separator + "images" + File.separator
+                + "main-menu-logo.gif"));
+        lblBackground.setOpaque(true);
+        lblBackground.setBackground(BACKGROUND_COLOR);
         //</editor-fold>
 
         //---------- Setting Up Font ----------//
@@ -157,8 +147,8 @@ public final class GameMain extends JFrame
         pnlOptions.setBackground(BACKGROUND_COLOR);
         pnlOptions.setLayout(new GridBagLayout());
 
-        pnlBackground.setBackground(BACKGROUND_COLOR);
-        pnlBackground.setPreferredSize(new Dimension(670, 400));
+        lblBackground.setBackground(BACKGROUND_COLOR);
+        lblBackground.setPreferredSize(new Dimension(670, 400));
 
         //</editor-fold>
 
@@ -301,7 +291,7 @@ public final class GameMain extends JFrame
         constraints.gridx = 1;
         pnlOptions.add(btnApply, constraints);
 
-        add(pnlBackground, BorderLayout.NORTH);
+        add(lblBackground, BorderLayout.NORTH);
         add(pnlInput);
         setCustomEffects(pnlInput);
         setCustomEffects(pnlOptions);
@@ -489,24 +479,6 @@ public final class GameMain extends JFrame
                 source.setBackground(GameMain.BUTTON_COLOR);
                 source.setForeground(GameMain.TEXT_COLOR);
             }
-        }
-    }
-
-    /*
-     * A private, inner class that allows for a panel's background to be an image.
-     */
-    private static final class ImagePanel extends JPanel
-    {
-        private Image image;
-
-        private ImagePanel(Image image)
-        { this.image = image; }
-
-        @Override
-        protected void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-            g.drawImage(image, 0, 0, null);
         }
     }
 
