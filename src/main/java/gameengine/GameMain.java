@@ -51,7 +51,7 @@ public final class GameMain extends JFrame
 
     //---------- Defining Fonts ----------//
     private static Font PIXEL_FONT_XLARGE;
-    private static Font PIXEL_FONT_LARGE;
+    static Font PIXEL_FONT_LARGE;
 
     //---------- Defining Borders ----------//
     private static final Border BUTTON_BORDER = BorderFactory.createCompoundBorder(
