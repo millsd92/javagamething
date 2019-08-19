@@ -103,6 +103,16 @@ public final class GameMain extends JFrame
         //---------- Setting Up Default Frame Attributes ----------//
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Welcome to the Game...");
+        if (Toolkit.getDefaultToolkit().getScreenSize().height >= 1080)
+            setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit()
+                    .getImage("javagamething" + File.separator + "src" + File.separator + "resources"
+                            + File.separator + "images" + File.separator + "large-cursor.png"),
+                    new Point(getX(), getY()), "CustomCursor"));
+        else
+            setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit()
+                            .getImage("javagamething" + File.separator + "src" + File.separator + "resources"
+                                    + File.separator + "images" + File.separator + "regular-cursor.png"),
+                    new Point(getX(), getY()), "CustomCursor"));
 
         //---------- Retrieving Background Image ----------//
         //<editor-fold desc="Retrieving Background Image">
