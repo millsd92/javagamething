@@ -48,6 +48,8 @@ public final class GameMain extends JFrame
     private int screenResolutionIndex = 0;
     private boolean fullScreen = false;
     private GraphicsDevice currentDevice = getGraphicsConfiguration().getDevice();
+    public static final String IMAGES_FOLDER = "javagamething" + File.separator + "src" + File.separator
+            + "resources" + File.separator + "images" + File.separator;
 
     //---------- Defining Fonts ----------//
     private static Font PIXEL_FONT_XLARGE;
@@ -105,19 +107,16 @@ public final class GameMain extends JFrame
         setTitle("Welcome to the Game...");
         if (Toolkit.getDefaultToolkit().getScreenSize().height >= 1080)
             setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit()
-                    .getImage("javagamething" + File.separator + "src" + File.separator + "resources"
-                            + File.separator + "images" + File.separator + "large-cursor.png"),
+                    .getImage(IMAGES_FOLDER + "mainscreen" + File.separator + "large-cursor.png"),
                     new Point(getX(), getY()), "CustomCursor"));
         else
             setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit()
-                            .getImage("javagamething" + File.separator + "src" + File.separator + "resources"
-                                    + File.separator + "images" + File.separator + "regular-cursor.png"),
+                            .getImage(IMAGES_FOLDER + "mainscreen" + File.separator + "regular-cursor.png"),
                     new Point(getX(), getY()), "CustomCursor"));
 
         //---------- Retrieving Background Image ----------//
         //<editor-fold desc="Retrieving Background Image">
-        JLabel lblBackground = new JLabel(new ImageIcon("javagamething" + File.separator
-                + "src" + File.separator + "resources" + File.separator + "images" + File.separator
+        JLabel lblBackground = new JLabel(new ImageIcon(IMAGES_FOLDER + "mainscreen" + File.separator
                 + "main-menu-logo.gif"));
         lblBackground.setOpaque(true);
         lblBackground.setBackground(BACKGROUND_COLOR);
@@ -503,12 +502,8 @@ public final class GameMain extends JFrame
 
         private CheckBoxIcon()
         {
-            unchecked = new ImageIcon("javagamething" + File.separator + "src"
-                    + File.separator + "resources" + File.separator + "images" + File.separator
-                    + "unchecked.png");
-            checked = new ImageIcon("javagamething" + File.separator + "src"
-                    + File.separator + "resources" + File.separator + "images" + File.separator
-                    + "checked.png");
+            unchecked = new ImageIcon(IMAGES_FOLDER + "mainscreen" + File.separator + "unchecked.png");
+            checked = new ImageIcon(IMAGES_FOLDER + "mainscreen" + File.separator + "checked.png");
         }
 
         @Override
@@ -541,8 +536,7 @@ public final class GameMain extends JFrame
         @Override
         public JButton createArrowButton()
         {
-            JButton arrowButton = new JButton(new ImageIcon("javagamething" + File.separator + "src"
-                    + File.separator + "resources" + File.separator + "images" + File.separator
+            JButton arrowButton = new JButton(new ImageIcon(IMAGES_FOLDER + "mainscreen" + File.separator
                     + "comboboxarrow.png"));
             GameMain.setCustomEffects(arrowButton);
 
@@ -572,8 +566,7 @@ public final class GameMain extends JFrame
                     {
                         private ImageIcon getArrow()
                         {
-                            return new ImageIcon("javagamething" + File.separator + "src"
-                                    + File.separator + "resources" + File.separator + "images" + File.separator
+                            return new ImageIcon(IMAGES_FOLDER + "mainscreen" + File.separator
                                     + "listarrow.png");
                         }
 
@@ -597,8 +590,7 @@ public final class GameMain extends JFrame
                         @Override
                         protected JButton createIncreaseButton(int orientation)
                         {
-                            ImageIcon arrow = new ImageIcon("javagamething" + File.separator + "src"
-                                    + File.separator + "resources" + File.separator + "images" + File.separator
+                            ImageIcon arrow = new ImageIcon(IMAGES_FOLDER + "mainscreen" + File.separator
                                     + "listarrow.png") {
                                 @Override
                                 public synchronized void paintIcon(Component c, Graphics g, int x, int y) {

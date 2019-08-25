@@ -1,24 +1,34 @@
 package gameengine;
 
 // Necessary imports.
+import gameengine.abstractions.AnimationState;
+import gameengine.graphicobjects.Hero;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 
-class Game extends JFrame
+public class Game extends JFrame
 {
-    private JLabel lblFPSCounter;
+    private JLabel lblFPSCounter = new JLabel();
 
+    public static int SCREEN_HEIGHT, SCREEN_WIDTH;
     private static boolean isRunning = false;
     private static boolean isPaused = false;
     private int FRAMES_PER_SECOND = 0;
+    private Hero hero;
 
     Game(DisplayMode displayMode, GraphicsDevice device, boolean isFullscreen)
     {
         //---------- Setting Up Screen ----------//
         setTitle("Here's the game!");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        SCREEN_HEIGHT = displayMode.getHeight();
+        SCREEN_WIDTH = displayMode.getWidth();
+
         if (isFullscreen)
         {
             device.setFullScreenWindow(this);
@@ -31,7 +41,6 @@ class Game extends JFrame
         startGame();
 
         //---------- Setting Up HUD ----------//
-        lblFPSCounter = new JLabel();
         lblFPSCounter.setOpaque(true);
         lblFPSCounter.setFont(GameMain.PIXEL_FONT_LARGE);
         lblFPSCounter.setText(FRAMES_PER_SECOND + " FPS ");
@@ -77,6 +86,8 @@ class Game extends JFrame
      */
     private void startGame()
     {
+        hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
+                5, 10, 200, AnimationState.IDLE);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();
@@ -133,10 +144,12 @@ class Game extends JFrame
                 currentTime = System.nanoTime();
             }
         }
+        FRAMES_PER_SECOND = 0;
     }
 
     private void renderGame(double interpolation)
     {
         lblFPSCounter.setText(FRAMES_PER_SECOND + " FPS ");
+        hero.move(interpolation);
     }
 }
