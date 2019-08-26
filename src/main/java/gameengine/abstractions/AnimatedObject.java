@@ -15,6 +15,7 @@ abstract class AnimatedObject
     private static final String ATTACKING_STRING = "-attacking";
     private static final String DEFENDING_STRING = "-defending";
     private static final String COLLIDED_STRING = "-collided";
+    private static final String START_MOVING_STRING = "-start-moving";
     private static final String IMAGE_EXTENSION = ".png";
 
     //---------- Class Variables ----------//
@@ -26,7 +27,7 @@ abstract class AnimatedObject
     private ArrayList<BufferedImage> idleImages = new ArrayList<>(), movingImages = new ArrayList<>(),
             takingDamageImages = new ArrayList<>(), healingImages = new ArrayList<>(),
             attackingImages = new ArrayList<>(), defendingImages = new ArrayList<>(),
-            collidedImages = new ArrayList<>(), currentAnimation;
+            collidedImages = new ArrayList<>(), startMovingImages = new ArrayList<>(), currentAnimation;
     //</editor-fold>
 
     void initializeAnimations(String filename, int animationSpeed, AnimationState startingState)
@@ -34,37 +35,8 @@ abstract class AnimatedObject
         currentState = previousState = startingState;
         this.animationSpeed = animationSpeed;
         setAllImages(filename);
-        switch (currentState)
-        {
-            case IDLE:
-                currentAnimation = idleImages;
-                currentImage = currentAnimation.get(0);
-                break;
-            case MOVING:
-                currentAnimation = movingImages;
-                currentImage = currentAnimation.get(0);
-                break;
-            case TAKING_DAMAGE:
-                currentAnimation = takingDamageImages;
-                currentImage = currentAnimation.get(0);
-                break;
-            case HEALING:
-                currentAnimation = healingImages;
-                currentImage = currentAnimation.get(0);
-                break;
-            case ATTACKING:
-                currentAnimation = attackingImages;
-                currentImage = currentAnimation.get(0);
-                break;
-            case DEFENDING:
-                currentAnimation = defendingImages;
-                currentImage = currentAnimation.get(0);
-                break;
-            case COLLIDED:
-                currentAnimation = collidedImages;
-                currentImage = currentAnimation.get(0);
-                break;
-        }
+        setCurrentAnimation();
+        currentImage = currentAnimation.get(0);
     }
 
     void animate()
@@ -76,30 +48,7 @@ abstract class AnimatedObject
             if (currentState != previousState)
             {
                 previousState = currentState;
-                switch (currentState)
-                {
-                    case IDLE:
-                        currentAnimation = idleImages;
-                        break;
-                    case MOVING:
-                        currentAnimation = movingImages;
-                        break;
-                    case TAKING_DAMAGE:
-                        currentAnimation = takingDamageImages;
-                        break;
-                    case HEALING:
-                        currentAnimation = healingImages;
-                        break;
-                    case ATTACKING:
-                        currentAnimation = attackingImages;
-                        break;
-                    case DEFENDING:
-                        currentAnimation = defendingImages;
-                        break;
-                    case COLLIDED:
-                        currentAnimation = collidedImages;
-                        break;
-                }
+                setCurrentAnimation();
                 currentImageIndex = 0;
             }
             if (currentImageIndex > currentAnimation.size() - 1)
@@ -123,7 +72,7 @@ abstract class AnimatedObject
     int getAnimationSpeed()
     { return animationSpeed; }
 
-    BufferedImage getCurrentImage()
+    public BufferedImage getCurrentImage()
     { return currentImage; }
     //</editor-fold>
 
@@ -146,6 +95,37 @@ abstract class AnimatedObject
             throw new IllegalArgumentException("Animation Speed must be greater than 0!");
     }
 
+    private void setCurrentAnimation()
+    {
+        switch (currentState)
+        {
+            case IDLE:
+                currentAnimation = idleImages;
+                break;
+            case MOVING:
+                currentAnimation = movingImages;
+                break;
+            case TAKING_DAMAGE:
+                currentAnimation = takingDamageImages;
+                break;
+            case HEALING:
+                currentAnimation = healingImages;
+                break;
+            case ATTACKING:
+                currentAnimation = attackingImages;
+                break;
+            case DEFENDING:
+                currentAnimation = defendingImages;
+                break;
+            case COLLIDED:
+                currentAnimation = collidedImages;
+                break;
+            case START_MOVING:
+                currentAnimation = startMovingImages;
+                break;
+        }
+    }
+
     private void setAllImages(String filename)
     {
         setImages(idleImages, filename, IDLE_STRING);
@@ -155,6 +135,7 @@ abstract class AnimatedObject
         setImages(attackingImages, filename, ATTACKING_STRING);
         setImages(defendingImages, filename, DEFENDING_STRING);
         setImages(collidedImages, filename, COLLIDED_STRING);
+        setImages(startMovingImages, filename, START_MOVING_STRING);
     }
 
     private void setImages(ArrayList<BufferedImage> images, String filename, String animation)

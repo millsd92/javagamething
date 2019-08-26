@@ -25,7 +25,14 @@ public abstract class MovableObject extends AnimatedObject
         if (isMoving)
         {
             calculateMovement(interpolation);
+            setAnimationSpeed(1);
+            setCurrentState(AnimationState.MOVING);
             isMoving = false;
+        }
+        else
+        {
+            setAnimationSpeed(10);
+            setCurrentState(AnimationState.IDLE);
         }
         animate();
     }
@@ -55,6 +62,9 @@ public abstract class MovableObject extends AnimatedObject
 
     //---------- Setters ----------//
     //<editor-fold desc="Setters">
+    public void setMoving(boolean isMoving)
+    { this.isMoving = isMoving; }
+
     public void setCurrentY(double currentY)
     {
         if (currentY + height <= Game.SCREEN_HEIGHT)
@@ -68,13 +78,14 @@ public abstract class MovableObject extends AnimatedObject
 
     public void setCurrentX(double currentX)
     {
-        if (currentX - width >= 0.0)
+        /*if (currentX - width >= 0.0)
             this.currentX = currentX;
         else
         {
             hasCollided = true;
             this.currentX = 0.0;
-        }
+        }*/
+        this.currentX = currentX;
     }
 
     public void setSize()

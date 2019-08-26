@@ -13,6 +13,6 @@ public class Hero extends gameengine.abstractions.MovableObject
     @Override
     public void calculateMovement(double interpolation)
     {
-        // Do nothing currently.
+        setCurrentX(getCurrentX() + (5 + interpolation));
     }
 }

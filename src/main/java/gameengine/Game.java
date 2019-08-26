@@ -12,8 +12,6 @@ import java.io.File;
 
 public class Game extends JFrame
 {
-    private JLabel lblFPSCounter = new JLabel();
-
     public static int SCREEN_HEIGHT, SCREEN_WIDTH;
     private static boolean isRunning = false;
     private static boolean isPaused = false;
@@ -37,21 +35,8 @@ public class Game extends JFrame
         else
             setSize(displayMode.getWidth(), displayMode.getHeight());
 
-        //---------- Attempt to test FPS ---------//
+        //---------- Start the Loop ---------//
         startGame();
-
-        //---------- Setting Up HUD ----------//
-        lblFPSCounter.setOpaque(true);
-        lblFPSCounter.setFont(GameMain.PIXEL_FONT_LARGE);
-        lblFPSCounter.setText(FRAMES_PER_SECOND + " FPS ");
-        lblFPSCounter.setHorizontalAlignment(JLabel.RIGHT);
-
-        JPanel HUD = new JPanel();
-        HUD.setOpaque(true);
-        HUD.setLayout(new BorderLayout());
-        HUD.add(lblFPSCounter, BorderLayout.NORTH);
-
-        add(HUD);
 
         //---------- Setting Up Controls ----------//
         addKeyListener(new KeyListener()
@@ -73,6 +58,10 @@ public class Game extends JFrame
                     isPaused = false;
                     isRunning = true;
                 }
+                if (e.getKeyCode() == KeyEvent.VK_D)
+                {
+                    hero.setMoving(true);
+                }
             }
 
             @Override
@@ -87,7 +76,7 @@ public class Game extends JFrame
     private void startGame()
     {
         hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
-                5, 10, 200, AnimationState.IDLE);
+                10, 10, 200, AnimationState.IDLE);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();
@@ -115,7 +104,7 @@ public class Game extends JFrame
             double TARGET_UPDATE_TIME = NANO_OFFSET / TARGET_UPDATE;
             while (currentTime - lastUpdate > TARGET_UPDATE_TIME && numberOfUpdates < MAX_UPDATES)
             {
-                //updateGame();
+                updateGame();
                 lastUpdate += TARGET_UPDATE_TIME;
                 numberOfUpdates++;
             }
@@ -125,7 +114,6 @@ public class Game extends JFrame
             double interpolation = Math.min(1.0f, (currentTime - lastUpdate) / TARGET_RENDER_TIME);
 
             renderGame(interpolation);
-            //FRAMES_PER_SECOND = (int) (NANO_OFFSET / (System.nanoTime() - lastRender));
             lastRender = currentTime;
             frameCount++;
 
@@ -147,9 +135,29 @@ public class Game extends JFrame
         FRAMES_PER_SECOND = 0;
     }
 
+    private void updateGame()
+    {
+    }
+
     private void renderGame(double interpolation)
     {
-        lblFPSCounter.setText(FRAMES_PER_SECOND + " FPS ");
         hero.move(interpolation);
+        repaint();
+    }
+
+    @Override
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+
+        Graphics2D graphics2D = (Graphics2D) g;
+        graphics2D.drawImage(hero.getCurrentImage(), (int) Math.floor(hero.getCurrentX()),
+                (int) Math.floor(hero.getCurrentY()), this);
+        g.setFont(GameMain.PIXEL_FONT_LARGE);
+        g.drawString(FRAMES_PER_SECOND + " FPS",
+                SCREEN_WIDTH - g.getFontMetrics().stringWidth(FRAMES_PER_SECOND + " FPS "),
+                g.getFontMetrics().getHeight() + g.getFontMetrics().getMaxAscent()
+                        + g.getFontMetrics().getMaxDescent() + g.getFontMetrics().getMaxAdvance());
+        Toolkit.getDefaultToolkit().sync();
     }
 }
