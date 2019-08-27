@@ -2,12 +2,11 @@ package gameengine;
 
 // Necessary imports.
 import gameengine.abstractions.AnimationState;
+import gameengine.abstractions.Direction;
 import gameengine.graphicobjects.Hero;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 
 public class Game extends JFrame
@@ -16,7 +15,7 @@ public class Game extends JFrame
     private static boolean isRunning = false;
     private static boolean isPaused = false;
     private int FRAMES_PER_SECOND = 0;
-    private Hero hero;
+    private static Hero hero;
 
     Game(DisplayMode displayMode, GraphicsDevice device, boolean isFullscreen)
     {
@@ -39,35 +38,7 @@ public class Game extends JFrame
         startGame();
 
         //---------- Setting Up Controls ----------//
-        addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e)
-            { }
-
-            @Override
-            public void keyPressed(KeyEvent e)
-            {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-                {
-                    isRunning = false;
-                    isPaused = true;
-                }
-                if (e.getKeyCode() == KeyEvent.VK_ENTER)
-                {
-                    isPaused = false;
-                    isRunning = true;
-                }
-                if (e.getKeyCode() == KeyEvent.VK_D)
-                {
-                    hero.setMoving(true);
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e)
-            { }
-        });
+        addKeyListener(new MainControls());
     }
 
     /*
@@ -76,7 +47,7 @@ public class Game extends JFrame
     private void startGame()
     {
         hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
-                10, 10, 200, AnimationState.IDLE);
+                10, 10, 200, AnimationState.IDLE, Direction.RIGHT);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();
@@ -96,43 +67,59 @@ public class Game extends JFrame
 
         while (isRunning)
         {
-            double currentTime = System.nanoTime();
-            int numberOfUpdates = 0;
-
-            int MAX_UPDATES = 5;
-            double TARGET_UPDATE = 30.0;
-            double TARGET_UPDATE_TIME = NANO_OFFSET / TARGET_UPDATE;
-            while (currentTime - lastUpdate > TARGET_UPDATE_TIME && numberOfUpdates < MAX_UPDATES)
+            if (!isPaused)
             {
-                updateGame();
-                lastUpdate += TARGET_UPDATE_TIME;
-                numberOfUpdates++;
+                double currentTime = System.nanoTime();
+                int numberOfUpdates = 0;
+
+                int MAX_UPDATES = 5;
+                double TARGET_UPDATE = 30.0;
+                double TARGET_UPDATE_TIME = NANO_OFFSET / TARGET_UPDATE;
+                while (currentTime - lastUpdate > TARGET_UPDATE_TIME && numberOfUpdates < MAX_UPDATES)
+                {
+                    updateGame();
+                    lastUpdate += TARGET_UPDATE_TIME;
+                    numberOfUpdates++;
+                }
+
+                double TARGET_FPS = 60.0;
+                double TARGET_RENDER_TIME = NANO_OFFSET / TARGET_FPS;
+                double interpolation = Math.min(1.0f, (currentTime - lastUpdate) / TARGET_RENDER_TIME);
+
+                renderGame(interpolation);
+                lastRender = currentTime;
+                frameCount++;
+
+                int currentSecond = (int) (lastUpdate / NANO_OFFSET);
+                if (currentSecond > lastSecond)
+                {
+                    FRAMES_PER_SECOND = frameCount;
+                    frameCount = 0;
+                    lastSecond = currentSecond;
+                }
+
+                while (currentTime - lastRender < TARGET_RENDER_TIME && currentTime - lastUpdate
+                        < TARGET_UPDATE_TIME)
+                {
+                    Thread.yield();
+                    try
+                    {
+                        Thread.sleep(0, 1);
+                    }
+                    catch (InterruptedException ignored) {}
+                    currentTime = System.nanoTime();
+                }
             }
-
-            double TARGET_FPS = 60.0;
-            double TARGET_RENDER_TIME = NANO_OFFSET / TARGET_FPS;
-            double interpolation = Math.min(1.0f, (currentTime - lastUpdate) / TARGET_RENDER_TIME);
-
-            renderGame(interpolation);
-            lastRender = currentTime;
-            frameCount++;
-
-            int currentSecond = (int) (lastUpdate / NANO_OFFSET);
-            if (currentSecond > lastSecond)
-            {
-                FRAMES_PER_SECOND = frameCount;
-                frameCount = 0;
-                lastSecond = currentSecond;
-            }
-
-            while (currentTime - lastRender < TARGET_RENDER_TIME && currentTime - lastUpdate < TARGET_UPDATE_TIME)
+            else
             {
                 Thread.yield();
-                try { Thread.sleep(0, 1); } catch (InterruptedException ignored) {}
-                currentTime = System.nanoTime();
+                try
+                {
+                    Thread.sleep(0, 1);
+                }
+                catch (InterruptedException ignored) {}
             }
         }
-        FRAMES_PER_SECOND = 0;
     }
 
     private void updateGame()
@@ -160,4 +147,10 @@ public class Game extends JFrame
                         + g.getFontMetrics().getMaxDescent() + g.getFontMetrics().getMaxAdvance());
         Toolkit.getDefaultToolkit().sync();
     }
+
+    public static Hero getHero() { return hero; }
+
+    public static void setIsPaused(boolean isPaused) { Game.isPaused = isPaused; }
+
+    public static boolean isPaused() { return isPaused; }
 }

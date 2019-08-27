@@ -16,6 +16,8 @@ abstract class AnimatedObject
     private static final String DEFENDING_STRING = "-defending";
     private static final String COLLIDED_STRING = "-collided";
     private static final String START_MOVING_STRING = "-start-moving";
+    private static final String STOPPING_STRING = "-stopping";
+    private static final String CHANGE_DIRECTION_STRING = "-changing-direction";
     private static final String IMAGE_EXTENSION = ".png";
 
     //---------- Class Variables ----------//
@@ -27,12 +29,15 @@ abstract class AnimatedObject
     private ArrayList<BufferedImage> idleImages = new ArrayList<>(), movingImages = new ArrayList<>(),
             takingDamageImages = new ArrayList<>(), healingImages = new ArrayList<>(),
             attackingImages = new ArrayList<>(), defendingImages = new ArrayList<>(),
-            collidedImages = new ArrayList<>(), startMovingImages = new ArrayList<>(), currentAnimation;
+            collidedImages = new ArrayList<>(), startMovingImages = new ArrayList<>(),
+            stoppingImages = new ArrayList<>(), changingDirectionImages = new ArrayList<>(), currentAnimation;
     //</editor-fold>
 
-    void initializeAnimations(String filename, int animationSpeed, AnimationState startingState)
+    void initializeAnimations(String filename, int animationSpeed, AnimationState startingState,
+                              Direction currentDirection)
     {
         currentState = previousState = startingState;
+        this.currentDirection = currentDirection;
         this.animationSpeed = animationSpeed;
         setAllImages(filename);
         setCurrentAnimation();
@@ -58,6 +63,21 @@ abstract class AnimatedObject
         }
     }
 
+    boolean transitionAnimate(AnimationState nextState)
+    {
+        animate();
+        if (currentImageIndex == currentAnimation.size() - 1)
+        {
+            previousState = currentState;
+            currentState = nextState;
+            setCurrentAnimation();
+            currentFrame = 0;
+            return true;
+        }
+        else
+            return false;
+    }
+
     //---------- Getters ----------//
     //<editor-fold desc="Getters">
     public AnimationState getCurrentState()
@@ -74,6 +94,9 @@ abstract class AnimatedObject
 
     public BufferedImage getCurrentImage()
     { return currentImage; }
+
+    int getCurrentAnimationSize()
+    { return currentAnimation.size(); }
     //</editor-fold>
 
     //---------- Setters -----------//
@@ -123,6 +146,12 @@ abstract class AnimatedObject
             case START_MOVING:
                 currentAnimation = startMovingImages;
                 break;
+            case STOPPING:
+                currentAnimation = stoppingImages;
+                break;
+            case CHANGING_DIRECTION:
+                currentAnimation = changingDirectionImages;
+                break;
         }
     }
 
@@ -136,6 +165,8 @@ abstract class AnimatedObject
         setImages(defendingImages, filename, DEFENDING_STRING);
         setImages(collidedImages, filename, COLLIDED_STRING);
         setImages(startMovingImages, filename, START_MOVING_STRING);
+        setImages(stoppingImages, filename, STOPPING_STRING);
+        setImages(changingDirectionImages, filename, CHANGE_DIRECTION_STRING);
     }
 
     private void setImages(ArrayList<BufferedImage> images, String filename, String animation)
