@@ -9,36 +9,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class Game extends JFrame
+public class Game extends JComponent
 {
-    public static int SCREEN_HEIGHT, SCREEN_WIDTH;
     private static boolean isRunning = false;
     private static boolean isPaused = false;
     private int FRAMES_PER_SECOND = 0;
     private static Hero hero;
 
-    Game(DisplayMode displayMode, GraphicsDevice device, boolean isFullscreen)
+    Game()
     {
-        //---------- Setting Up Screen ----------//
-        setTitle("Here's the game!");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-        SCREEN_HEIGHT = displayMode.getHeight();
-        SCREEN_WIDTH = displayMode.getWidth();
-
-        if (isFullscreen)
-        {
-            device.setFullScreenWindow(this);
-            device.setDisplayMode(displayMode);
-        }
-        else
-            setSize(displayMode.getWidth(), displayMode.getHeight());
-
         //---------- Start the Loop ---------//
         startGame();
 
-        //---------- Setting Up Controls ----------//
-        addKeyListener(new MainControls());
+        //---------- Make it Large ----------//
+        setPreferredSize(new Dimension(GameFrame.SCREEN_WIDTH, GameFrame.SCREEN_HEIGHT));
     }
 
     /*
@@ -133,18 +117,17 @@ public class Game extends JFrame
     }
 
     @Override
-    public void paint(Graphics g)
+    public void paintComponent(Graphics g)
     {
-        super.paint(g);
+        super.paintComponent(g);
 
         Graphics2D graphics2D = (Graphics2D) g;
         graphics2D.drawImage(hero.getCurrentImage(), (int) Math.floor(hero.getCurrentX()),
                 (int) Math.floor(hero.getCurrentY()), this);
         g.setFont(GameMain.PIXEL_FONT_LARGE);
         g.drawString(FRAMES_PER_SECOND + " FPS",
-                SCREEN_WIDTH - g.getFontMetrics().stringWidth(FRAMES_PER_SECOND + " FPS "),
-                g.getFontMetrics().getHeight() + g.getFontMetrics().getMaxAscent()
-                        + g.getFontMetrics().getMaxDescent() + g.getFontMetrics().getMaxAdvance());
+                GameFrame.SCREEN_WIDTH - g.getFontMetrics().stringWidth(FRAMES_PER_SECOND + " FPS "),
+                g.getFontMetrics().getHeight());
         Toolkit.getDefaultToolkit().sync();
     }
 

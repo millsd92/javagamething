@@ -231,7 +231,7 @@ public final class GameMain extends JFrame
         {
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             DisplayMode displayMode = getSelectedDisplayMode();
-            Game game = new Game(displayMode, currentDevice, fullScreen);
+            GameFrame game = new GameFrame(displayMode, currentDevice, fullScreen);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             game.setVisible(true);
         });

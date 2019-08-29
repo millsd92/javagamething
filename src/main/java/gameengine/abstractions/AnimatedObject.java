@@ -1,13 +1,26 @@
 package gameengine.abstractions;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/*
+ * I will reiterate some of what I said in the README file here. Animations are specific due to their
+ * programmatic way of being loaded in. The images need to be .png files. They also need to be named
+ * based on the strings here. For instance: if the sprite's name is evil-eye-monster-thing then all
+ * idle animations need to be called evil-eye-monster-thing-idle1.png, evil-eye-monster-thing-idle2.png,
+ * etc. The other animations need to be in line with the string constants defined at the top of this class
+ * for consistency's sake.
+ */
 abstract class AnimatedObject
 {
+    //---------- Filename Strings ----------//
+    //<editor-fold desc="Filename Strings">
     private static final String IDLE_STRING = "-idle";
     private static final String MOVING_STRING = "-moving";
     private static final String TAKING_DAMAGE_STRING = "-damaged";
@@ -19,6 +32,7 @@ abstract class AnimatedObject
     private static final String STOPPING_STRING = "-stopping";
     private static final String CHANGE_DIRECTION_STRING = "-changing-direction";
     private static final String IMAGE_EXTENSION = ".png";
+    //</editor-fold>
 
     //---------- Class Variables ----------//
     //<editor-fold desc="Class Variables">
@@ -58,7 +72,10 @@ abstract class AnimatedObject
             }
             if (currentImageIndex > currentAnimation.size() - 1)
                 currentImageIndex = 0;
-            currentImage = currentAnimation.get(currentImageIndex);
+            if (currentDirection == Direction.RIGHT)
+                currentImage = currentAnimation.get(currentImageIndex);
+            else
+                currentImage = flipImage(currentAnimation.get(currentImageIndex));
             currentImageIndex++;
         }
     }
@@ -200,6 +217,20 @@ abstract class AnimatedObject
             }
         }
         while (fileToTest.exists());
+    }
+
+    private BufferedImage flipImage(BufferedImage image)
+    {
+        AffineTransform transform = new AffineTransform();
+        transform.concatenate(AffineTransform.getScaleInstance(-1, 1));
+        transform.concatenate(AffineTransform.getTranslateInstance(-image.getWidth(), 0));
+        BufferedImage returnImage = new BufferedImage(image.getWidth(), image.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = returnImage.createGraphics();
+        graphics.transform(transform);
+        graphics.drawImage(image, 0, 0, null);
+        graphics.dispose();
+        return returnImage;
     }
     //</editor-fold>
 }

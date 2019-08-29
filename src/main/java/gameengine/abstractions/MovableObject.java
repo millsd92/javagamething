@@ -1,6 +1,7 @@
 package gameengine.abstractions;
 
 import gameengine.Game;
+import gameengine.GameFrame;
 
 public abstract class MovableObject extends AnimatedObject
 {
@@ -38,6 +39,25 @@ public abstract class MovableObject extends AnimatedObject
                 stopping = false;
                 isMoving = false;
                 startMoving = false;
+            }
+        }
+        else if (changingDirection)
+        {
+            if (deltaX > 0.0)
+                deltaX -= 2 * (deltaX / getCurrentAnimationSize());
+            calculateMovement(interpolation);
+            setAnimationSpeed(1);
+            setCurrentState(AnimationState.CHANGING_DIRECTION);
+            if (transitionAnimate(AnimationState.IDLE))
+            {
+                stopping = false;
+                startMoving = false;
+                isMoving = false;
+                changingDirection = false;
+                if (getCurrentDirection() == Direction.LEFT)
+                    setCurrentDirection(Direction.RIGHT);
+                else
+                    setCurrentDirection(Direction.LEFT);
             }
         }
         else if (isMoving)
@@ -80,6 +100,9 @@ public abstract class MovableObject extends AnimatedObject
     public boolean isStopping()
     { return stopping; }
 
+    public boolean changingDirection()
+    { return changingDirection; }
+
     public boolean hasCollided()
     { return hasCollided; }
 
@@ -118,12 +141,12 @@ public abstract class MovableObject extends AnimatedObject
 
     public void setCurrentY(double currentY)
     {
-        if (currentY + height <= Game.SCREEN_HEIGHT && currentY >= 0.0)
+        if (currentY + height <= GameFrame.SCREEN_HEIGHT && currentY >= 0.0)
             this.currentY = currentY;
-        else if (currentY + height > Game.SCREEN_HEIGHT)
+        else if (currentY + height > GameFrame.SCREEN_HEIGHT)
         {
             hasCollided = true;
-            this.currentY = Game.SCREEN_HEIGHT - height;
+            this.currentY = GameFrame.SCREEN_HEIGHT - height;
         }
         else if (currentY < 0.0)
         {
@@ -134,17 +157,17 @@ public abstract class MovableObject extends AnimatedObject
 
     public void setCurrentX(double currentX)
     {
-        if (currentX >= 0.0 && currentX + width < Game.SCREEN_WIDTH)
+        if (currentX >= 0.0 && currentX + width < GameFrame.SCREEN_WIDTH)
             this.currentX = currentX;
         else if (currentX < 0.0)
         {
             hasCollided = true;
             this.currentX = 0.0;
         }
-        else if (currentX + width > Game.SCREEN_WIDTH)
+        else if (currentX + width > GameFrame.SCREEN_WIDTH)
         {
             hasCollided = true;
-            this.currentX = Game.SCREEN_WIDTH - width;
+            this.currentX = GameFrame.SCREEN_WIDTH - width;
         }
     }
 

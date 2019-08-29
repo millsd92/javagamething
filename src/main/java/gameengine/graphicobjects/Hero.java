@@ -14,8 +14,17 @@ public class Hero extends gameengine.abstractions.MovableObject
     @Override
     public void calculateMovement(double interpolation)
     {
-        setCurrentX(getCurrentX() + (getDeltaX() + interpolation));
-        if (hasYMovement())
-            setCurrentY(getCurrentY() + (getDeltaY() + interpolation));
+        if (getCurrentDirection() == Direction.RIGHT)
+        {
+            setCurrentX(getCurrentX() + (getDeltaX() + interpolation));
+            if (hasYMovement())
+                setCurrentY(getCurrentY() + (getDeltaY() + interpolation));
+        }
+        else
+        {
+            setCurrentX(getCurrentX() - (getDeltaX() + interpolation));
+            if (hasYMovement())
+                setCurrentY(getCurrentY() - (getDeltaY() + interpolation));
+        }
     }
 }
