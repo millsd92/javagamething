@@ -6,7 +6,7 @@ This "game thing" is an attempt of mine to keep my skills sharp by making a game
 ## TODO List
 - [X] Create Hero Sprite
 - [X] Start Animations
-- [ ] Handle Turning Around
+- [X] Handle Turning Around *This is tenative. I still need to handle changes mid-change.*
 - [ ] Create Jumping Animation
 - [ ] Handle Gravity
 - [ ] Handle Pausing (more gracefully)
