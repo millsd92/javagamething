@@ -3,7 +3,6 @@ package gameengine.abstractions;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
  * etc. The other animations need to be in line with the string constants defined at the top of this class
  * for consistency's sake.
  */
-abstract class AnimatedObject
+public abstract class AnimatedObject
 {
     //---------- Filename Strings ----------//
     //<editor-fold desc="Filename Strings">
@@ -32,6 +31,8 @@ abstract class AnimatedObject
     private static final String STOPPING_STRING = "-stopping";
     private static final String CHANGE_DIRECTION_STRING = "-changing-direction";
     private static final String IMAGE_EXTENSION = ".png";
+
+    public static final double GRAVITY_OVER_TIME = 0.15;
     //</editor-fold>
 
     //---------- Class Variables ----------//

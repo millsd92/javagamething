@@ -1,27 +1,28 @@
 package gameengine.abstractions;
 
 import gameengine.Game;
-import gameengine.GameFrame;
 
 public abstract class MovableObject extends AnimatedObject
 {
     //---------- Class Variables ----------//
     //<editor-fold desc="Class Variables">
-    private boolean isMoving = false, hasCollided = false, startMoving = false, stopping = false,
-            yMovement = false, changingDirection = false;
+    private boolean isMoving = false, isGrounded = false, startMoving = false, stopping = false,
+            changingDirection = false;
     private double currentX, currentY, deltaX, deltaY;
     private int width, height;
 
-    private static final double TERMINAL_VELOCITY_X = 25;
-    private static final double TERMINAL_VELOCITY_Y = 25;
+    private double terminalVelocityX, terminalVelocityY;
     //</editor-fold>
 
     protected void initializeMovable(String filename, int animationSpeed, double startingX, double startingY,
-                                     AnimationState startingState, Direction currentDirection)
+                                     AnimationState startingState, Direction currentDirection,
+                                     double terminalVelocityX, double terminalVelocityY)
     {
         initializeAnimations(filename, animationSpeed, startingState, currentDirection);
         setCurrentX(startingX);
         setCurrentY(startingY);
+        setTerminalVelocityX(terminalVelocityX);
+        setTerminalVelocityY(terminalVelocityY);
         setSize();
     }
 
@@ -84,6 +85,9 @@ public abstract class MovableObject extends AnimatedObject
         }
         else
         {
+            if (!isGrounded)
+                calculateMovement(interpolation);
+            setDeltaX(0.0);
             setAnimationSpeed(10);
             setCurrentState(AnimationState.IDLE);
             animate();
@@ -103,11 +107,8 @@ public abstract class MovableObject extends AnimatedObject
     public boolean changingDirection()
     { return changingDirection; }
 
-    public boolean hasCollided()
-    { return hasCollided; }
-
-    public boolean hasYMovement()
-    { return yMovement; }
+    public boolean isGrounded()
+    { return isGrounded; }
 
     public double getCurrentX()
     { return currentX; }
@@ -139,46 +140,49 @@ public abstract class MovableObject extends AnimatedObject
     public void setStopping(boolean stopping)
     { this.stopping = stopping; }
 
+    public void setGrounded(boolean isGrounded)
+    { this.isGrounded = isGrounded; }
+
     public void setCurrentY(double currentY)
     {
-        if (currentY + height <= GameFrame.SCREEN_HEIGHT && currentY >= 0.0)
-            this.currentY = currentY;
-        else if (currentY + height > GameFrame.SCREEN_HEIGHT)
+        if (currentY + height <= Game.SCREEN_HEIGHT && currentY >= 0.0)
         {
-            hasCollided = true;
-            this.currentY = GameFrame.SCREEN_HEIGHT - height;
+            isGrounded = false;
+            this.currentY = currentY;
+        }
+        else if (currentY - height > Game.SCREEN_HEIGHT)
+        {
+            isGrounded = true;
+            this.currentY = Game.SCREEN_HEIGHT - height;
         }
         else if (currentY < 0.0)
         {
-            hasCollided = true;
+            isGrounded = false;
             this.currentY = 0.0;
         }
     }
 
     public void setCurrentX(double currentX)
     {
-        if (currentX >= 0.0 && currentX + width < GameFrame.SCREEN_WIDTH)
+        if (currentX >= 0.0 && currentX + width < Game.SCREEN_WIDTH)
             this.currentX = currentX;
         else if (currentX < 0.0)
-        {
-            hasCollided = true;
             this.currentX = 0.0;
-        }
-        else if (currentX + width > GameFrame.SCREEN_WIDTH)
-        {
-            hasCollided = true;
-            this.currentX = GameFrame.SCREEN_WIDTH - width;
-        }
+        else if (currentX + width > Game.SCREEN_WIDTH)
+            this.currentX = Game.SCREEN_WIDTH - width;
     }
 
     public void setDeltaX(double deltaX)
-    { this.deltaX = Math.min(deltaX, TERMINAL_VELOCITY_X); }
+    { this.deltaX = Math.min(deltaX, terminalVelocityX); }
 
     public void setDeltaY(double deltaY)
-    { this.deltaY = Math.min(deltaY, TERMINAL_VELOCITY_Y); }
+    { this.deltaY = Math.min(deltaY, terminalVelocityY); }
 
-    public void setYMovement(boolean yMovement)
-    { this.yMovement = yMovement; }
+    public void setTerminalVelocityX(double terminalVelocityX)
+    { this.terminalVelocityX = terminalVelocityX; }
+
+    public void setTerminalVelocityY(double terminalVelocityY)
+    { this.terminalVelocityY = terminalVelocityY; }
 
     private void setSize()
     {

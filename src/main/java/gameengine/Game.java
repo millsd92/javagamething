@@ -15,14 +15,28 @@ public class Game extends JComponent
     private static boolean isPaused = false;
     private int FRAMES_PER_SECOND = 0;
     private static Hero hero;
+    public static int SCREEN_HEIGHT, SCREEN_WIDTH;
 
-    Game()
+    Game(JFrame frame, boolean isFullscreen)
     {
+        //---------- Make it Large ----------//
+        setSize(frame.getSize());
+
+
+        if (!isFullscreen)
+        {
+            SCREEN_HEIGHT = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().height
+                    - Toolkit.getDefaultToolkit().getScreenInsets(frame.getGraphicsConfiguration()).bottom;
+            SCREEN_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width;
+        }
+        else
+        {
+            SCREEN_WIDTH = frame.getWidth();
+            SCREEN_HEIGHT = frame.getHeight();
+        }
+
         //---------- Start the Loop ---------//
         startGame();
-
-        //---------- Make it Large ----------//
-        setPreferredSize(new Dimension(GameFrame.SCREEN_WIDTH, GameFrame.SCREEN_HEIGHT));
     }
 
     /*
@@ -31,7 +45,8 @@ public class Game extends JComponent
     private void startGame()
     {
         hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
-                10, 10, 200, AnimationState.IDLE, Direction.RIGHT);
+                10, 10, 200, AnimationState.IDLE, Direction.RIGHT,
+                25.0, 25.0);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();
@@ -126,14 +141,14 @@ public class Game extends JComponent
                 (int) Math.floor(hero.getCurrentY()), this);
         g.setFont(GameMain.PIXEL_FONT_LARGE);
         g.drawString(FRAMES_PER_SECOND + " FPS",
-                GameFrame.SCREEN_WIDTH - g.getFontMetrics().stringWidth(FRAMES_PER_SECOND + " FPS "),
+                getWidth() - g.getFontMetrics().stringWidth(FRAMES_PER_SECOND + " FPS "),
                 g.getFontMetrics().getHeight());
         Toolkit.getDefaultToolkit().sync();
     }
 
-    public static Hero getHero() { return hero; }
+    static Hero getHero() { return hero; }
 
-    public static void setIsPaused(boolean isPaused) { Game.isPaused = isPaused; }
+    static void setIsPaused(boolean isPaused) { Game.isPaused = isPaused; }
 
-    public static boolean isPaused() { return isPaused; }
+    static boolean isPaused() { return isPaused; }
 }
