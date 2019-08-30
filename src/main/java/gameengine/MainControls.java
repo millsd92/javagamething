@@ -45,7 +45,8 @@ public class MainControls implements KeyListener
     {
         if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_A)
         {
-            if ((Game.getHero().isMoving() || Game.getHero().getCurrentState() == AnimationState.START_MOVING)
+            if ((Game.getHero().isMoving() || Game.getHero().getCurrentState() == AnimationState.START_MOVING
+                    || Game.getHero().getCurrentState() == AnimationState.MOVING)
                     && !Game.getHero().changingDirection())
                 Game.getHero().setStopping(true);
         }

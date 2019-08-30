@@ -48,7 +48,7 @@ public class Game extends JComponent
     {
         hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
                 10, 10, 200, AnimationState.IDLE, Direction.RIGHT,
-                25.0, 25.0, 0.0);
+                25.0, 25.0, 0.1);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();

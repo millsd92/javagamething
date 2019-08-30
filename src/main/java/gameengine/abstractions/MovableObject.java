@@ -197,7 +197,7 @@ public abstract class MovableObject extends AnimatedObject
     }
 
     public void changeDirection()
-    { this.changingDirection = true; }
+    { changingDirection = true; }
 
     public void setElasticity(double elasticity)
     {

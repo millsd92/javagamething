@@ -75,6 +75,8 @@ public abstract class AnimatedObject
             }
             if (currentImageIndex > currentAnimation.size() - 1)
                 currentImageIndex = 0;
+            if (currentImageIndex < 0)
+                currentImageIndex = currentAnimation.size() - 1;
             if (currentDirection == Direction.RIGHT)
                 currentImage = currentAnimation.get(currentImageIndex);
             else
@@ -86,10 +88,10 @@ public abstract class AnimatedObject
     boolean transitionAnimate(AnimationState nextState)
     {
         animate();
+        currentState = nextState;
         if (currentImageIndex == currentAnimation.size() - 1)
         {
             previousState = currentState;
-            currentState = nextState;
             setCurrentAnimation();
             currentFrame = 0;
             return true;
