@@ -8,7 +8,7 @@ This "game thing" is an attempt of mine to keep my skills sharp by making a game
 - [X] Start Animations
 - [X] Handle Turning Around *This is tenative. I still need to handle changes mid-change.*
 - [ ] Create Jumping Animation
-- [ ] Handle Gravity
+- [X] Handle Gravity
 - [ ] Handle Pausing (more gracefully)
 - [ ] Handle Loading
 - [ ] Everything Else.......
