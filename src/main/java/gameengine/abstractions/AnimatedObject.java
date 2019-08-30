@@ -32,6 +32,7 @@ public abstract class AnimatedObject
     private static final String START_MOVING_STRING = "-start-moving";
     private static final String STOPPING_STRING = "-stopping";
     private static final String CHANGE_DIRECTION_STRING = "-changing-direction";
+    private static final String JUMPING_STRING = "-jumping";
     private static final String IMAGE_EXTENSION = ".png";
 
     public static final double GRAVITY_OVER_TIME = 0.25;
@@ -47,7 +48,8 @@ public abstract class AnimatedObject
             takingDamageImages = new ArrayList<>(), healingImages = new ArrayList<>(),
             attackingImages = new ArrayList<>(), defendingImages = new ArrayList<>(),
             collidedImages = new ArrayList<>(), startMovingImages = new ArrayList<>(),
-            stoppingImages = new ArrayList<>(), changingDirectionImages = new ArrayList<>(), currentAnimation;
+            stoppingImages = new ArrayList<>(), changingDirectionImages = new ArrayList<>(),
+            jumpingImages = new ArrayList<>(), currentAnimation;
     //</editor-fold>
 
     void initializeAnimations(String filename, int animationSpeed, AnimationState startingState,
@@ -174,6 +176,9 @@ public abstract class AnimatedObject
             case CHANGING_DIRECTION:
                 currentAnimation = changingDirectionImages;
                 break;
+            case JUMPING:
+                currentAnimation = jumpingImages;
+                break;
         }
     }
 
@@ -189,6 +194,7 @@ public abstract class AnimatedObject
         setImages(startMovingImages, filename, START_MOVING_STRING);
         setImages(stoppingImages, filename, STOPPING_STRING);
         setImages(changingDirectionImages, filename, CHANGE_DIRECTION_STRING);
+        setImages(jumpingImages, filename, JUMPING_STRING);
     }
 
     private void setImages(ArrayList<BufferedImage> images, String filename, String animation)
