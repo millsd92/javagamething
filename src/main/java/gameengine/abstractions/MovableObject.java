@@ -8,7 +8,7 @@ public abstract class MovableObject extends AnimatedObject
     //<editor-fold desc="Class Variables">
     private boolean isMoving = false, isGrounded = false, startMoving = false, stopping = false,
             changingDirection = false;
-    private double currentX, currentY, deltaX, deltaY;
+    private double currentX, currentY, deltaX, deltaY, elasticity;
     private int width, height;
 
     private double terminalVelocityX, terminalVelocityY;
@@ -16,13 +16,13 @@ public abstract class MovableObject extends AnimatedObject
 
     protected void initializeMovable(String filename, int animationSpeed, double startingX, double startingY,
                                      AnimationState startingState, Direction currentDirection,
-                                     double terminalVelocityX, double terminalVelocityY)
+                                     double terminalVelocityX, double terminalVelocityY, double elasticity)
     {
         initializeAnimations(filename, animationSpeed, startingState, currentDirection);
         setCurrentX(startingX);
         setCurrentY(startingY);
-        setTerminalVelocityX(terminalVelocityX);
-        setTerminalVelocityY(terminalVelocityY);
+        setTerminalVelocities(terminalVelocityX, terminalVelocityY);
+        setElasticity(elasticity);
         setSize();
     }
 
@@ -127,6 +127,9 @@ public abstract class MovableObject extends AnimatedObject
 
     public int getHeight()
     { return height; }
+
+    public double getElasticity()
+    { return elasticity; }
     //</editor-fold>
 
     //---------- Setters ----------//
@@ -150,9 +153,12 @@ public abstract class MovableObject extends AnimatedObject
             isGrounded = false;
             this.currentY = currentY;
         }
-        else if (currentY - height > Game.SCREEN_HEIGHT)
+        else if (currentY + height > Game.SCREEN_HEIGHT)
         {
-            isGrounded = true;
+            if (Math.abs(deltaY) < 0.5)
+                isGrounded = true;
+            else
+                deltaY = (deltaY * elasticity * -1);
             this.currentY = Game.SCREEN_HEIGHT - height;
         }
         else if (currentY < 0.0)
@@ -178,11 +184,11 @@ public abstract class MovableObject extends AnimatedObject
     public void setDeltaY(double deltaY)
     { this.deltaY = Math.min(deltaY, terminalVelocityY); }
 
-    public void setTerminalVelocityX(double terminalVelocityX)
-    { this.terminalVelocityX = terminalVelocityX; }
-
-    public void setTerminalVelocityY(double terminalVelocityY)
-    { this.terminalVelocityY = terminalVelocityY; }
+    private void setTerminalVelocities(double terminalVelocityX, double terminalVelocityY)
+    {
+        this.terminalVelocityX = terminalVelocityX;
+        this.terminalVelocityY = terminalVelocityY;
+    }
 
     private void setSize()
     {
@@ -192,5 +198,13 @@ public abstract class MovableObject extends AnimatedObject
 
     public void changeDirection()
     { this.changingDirection = true; }
+
+    public void setElasticity(double elasticity)
+    {
+        if (elasticity > 0.95)
+            this.elasticity = 0.95;
+        else
+            this.elasticity = Math.max(elasticity, 0.0);
+    }
     //</editor-fold>
 }

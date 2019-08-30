@@ -8,10 +8,10 @@ public class Hero extends gameengine.abstractions.MovableObject
 {
     public Hero(String filename, int animationSpeed, double startingX, double startingY,
                 AnimationState startingState, Direction currentDirection, double terminalVelocityX,
-                double terminalVelocityY)
+                double terminalVelocityY, double elasticity)
     {
         initializeMovable(filename, animationSpeed, startingX, startingY, startingState, currentDirection,
-                terminalVelocityX, terminalVelocityY);
+                terminalVelocityX, terminalVelocityY, elasticity);
     }
 
     @Override

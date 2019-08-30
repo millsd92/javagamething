@@ -1,6 +1,8 @@
 package gameengine;
 
+import gameengine.abstractions.AnimationState;
 import gameengine.abstractions.Direction;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -12,7 +14,7 @@ public class MainControls implements KeyListener
     public void keyTyped(KeyEvent e) { }
 
     @Override
-    public void keyPressed(KeyEvent e)
+    public void keyPressed(@NotNull KeyEvent e)
     {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
             Game.setIsPaused(!Game.isPaused());
@@ -39,11 +41,12 @@ public class MainControls implements KeyListener
     }
 
     @Override
-    public void keyReleased(KeyEvent e)
+    public void keyReleased(@NotNull KeyEvent e)
     {
         if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_A)
         {
-            if (Game.getHero().isMoving() && !Game.getHero().changingDirection())
+            if ((Game.getHero().isMoving() || Game.getHero().getCurrentState() == AnimationState.START_MOVING)
+                    && !Game.getHero().changingDirection())
                 Game.getHero().setStopping(true);
         }
     }

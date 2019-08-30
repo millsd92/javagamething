@@ -4,6 +4,8 @@ package gameengine;
 import gameengine.abstractions.AnimationState;
 import gameengine.abstractions.Direction;
 import gameengine.graphicobjects.Hero;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +19,7 @@ public class Game extends JComponent
     private static Hero hero;
     public static int SCREEN_HEIGHT, SCREEN_WIDTH;
 
-    Game(JFrame frame, boolean isFullscreen)
+    Game(@NotNull JFrame frame, boolean isFullscreen)
     {
         //---------- Make it Large ----------//
         setSize(frame.getSize());
@@ -46,7 +48,7 @@ public class Game extends JComponent
     {
         hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
                 10, 10, 200, AnimationState.IDLE, Direction.RIGHT,
-                25.0, 25.0);
+                25.0, 25.0, 0.0);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();
@@ -146,9 +148,11 @@ public class Game extends JComponent
         Toolkit.getDefaultToolkit().sync();
     }
 
+    @Contract(pure = true)
     static Hero getHero() { return hero; }
 
     static void setIsPaused(boolean isPaused) { Game.isPaused = isPaused; }
 
+    @Contract(pure = true)
     static boolean isPaused() { return isPaused; }
 }

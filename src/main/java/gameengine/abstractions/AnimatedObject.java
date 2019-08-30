@@ -1,5 +1,7 @@
 package gameengine.abstractions;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -32,7 +34,7 @@ public abstract class AnimatedObject
     private static final String CHANGE_DIRECTION_STRING = "-changing-direction";
     private static final String IMAGE_EXTENSION = ".png";
 
-    public static final double GRAVITY_OVER_TIME = 0.15;
+    public static final double GRAVITY_OVER_TIME = 0.25;
     //</editor-fold>
 
     //---------- Class Variables ----------//
@@ -220,7 +222,8 @@ public abstract class AnimatedObject
         while (fileToTest.exists());
     }
 
-    private BufferedImage flipImage(BufferedImage image)
+    @NotNull
+    private BufferedImage flipImage(@NotNull BufferedImage image)
     {
         AffineTransform transform = new AffineTransform();
         transform.concatenate(AffineTransform.getScaleInstance(-1, 1));
