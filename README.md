@@ -6,7 +6,7 @@ This "game thing" is an attempt of mine to keep my skills sharp by making a game
 ## TODO List
 - [X] Create Hero Sprite
 - [X] Start Animations
-- [X] Handle Turning Around *This is tenative. I still need to handle changes mid-change.*
+- [X] Handle Turning Around
 - [ ] Create Jumping Animation
 - [X] Handle Gravity
 - [ ] Handle Pausing (more gracefully)
@@ -14,7 +14,7 @@ This "game thing" is an attempt of mine to keep my skills sharp by making a game
 - [ ] Everything Else.......
 
 ### Side Notes
-All animations are done in Aseprite and are handmade by yours truely. If, for some reason, you want to use them, feel free. They are awful and I am definitely not a graphic artist.
+All animations are done in Aseprite and are handmade by yours truly. If, for some reason, you want to use them, feel free. They are awful and I am definitely not a graphic artist.
 Speaking of animations, they are specifically named, if for some reason someone wishes to contribute. More information on this is described in the AnimatedObject class located in the abstractions folder.
 If you are a fellow programmer who wants to join in the fun of working collaboratively on a game that currently has no definitive direction (other than being 2D), please email me at davidmmills@hotmail.com.
 And yes, hotmail is still a thing. If you want an alternative email address you can send me an email at idonthaveanother@aol.com.
