@@ -33,6 +33,8 @@ public abstract class AnimatedObject
     private static final String STOPPING_STRING = "-stopping";
     private static final String CHANGE_DIRECTION_STRING = "-changing-direction";
     private static final String JUMPING_STRING = "-jumping";
+    private static final String FALLING_STRING = "-falling";
+    private static final String LANDING_STRING = "-landing";
     private static final String IMAGE_EXTENSION = ".png";
 
     public static final double GRAVITY_OVER_TIME = 0.25;
@@ -40,7 +42,7 @@ public abstract class AnimatedObject
 
     //---------- Class Variables ----------//
     //<editor-fold desc="Class Variables">
-    private AnimationState currentState, previousState;
+    private AnimationState currentState, previousState, nextState;
     private Direction currentDirection;
     private int animationSpeed, currentFrame = 0, currentImageIndex = 0;
     BufferedImage currentImage;
@@ -49,7 +51,8 @@ public abstract class AnimatedObject
             attackingImages = new ArrayList<>(), defendingImages = new ArrayList<>(),
             collidedImages = new ArrayList<>(), startMovingImages = new ArrayList<>(),
             stoppingImages = new ArrayList<>(), changingDirectionImages = new ArrayList<>(),
-            jumpingImages = new ArrayList<>(), currentAnimation;
+            jumpingImages = new ArrayList<>(), fallingImages = new ArrayList<>(),
+            landingImages = new ArrayList<>(), currentAnimation;
     //</editor-fold>
 
     void initializeAnimations(String filename, int animationSpeed, AnimationState startingState,
@@ -63,9 +66,17 @@ public abstract class AnimatedObject
         currentImage = currentAnimation.get(0);
     }
 
-    void animate()
+    void animationStep(boolean forward)
     {
         currentFrame++;
+
+        if (currentState == AnimationState.IDLE)
+            animationSpeed = 10;
+        else if (currentState == AnimationState.LANDING)
+            animationSpeed = 2;
+        else
+            animationSpeed = 1;
+
         if (currentFrame >= animationSpeed)
         {
             currentFrame = 0;
@@ -76,72 +87,61 @@ public abstract class AnimatedObject
                 currentImageIndex = 0;
             }
             if (currentImageIndex > currentAnimation.size() - 1)
+            {
+                if (nextState != null)
+                {
+                    if (currentState == AnimationState.CHANGING_DIRECTION)
+                    {
+                        if (currentDirection == Direction.RIGHT)
+                            currentDirection = Direction.LEFT;
+                        else
+                            currentDirection = Direction.RIGHT;
+                    }
+                    setAnimation(nextState);
+                    nextState = null;
+                }
                 currentImageIndex = 0;
-            if (currentImageIndex < 0)
+            }
+            else if (currentImageIndex < 0)
+            {
+                if (nextState != null)
+                {
+                    setAnimation(nextState);
+                    nextState = null;
+                }
                 currentImageIndex = currentAnimation.size() - 1;
+            }
             if (currentDirection == Direction.RIGHT)
                 currentImage = currentAnimation.get(currentImageIndex);
             else
                 currentImage = flipImage(currentAnimation.get(currentImageIndex));
-            currentImageIndex++;
+            if (forward)
+                currentImageIndex++;
+            else
+                currentImageIndex--;
         }
-    }
-
-    boolean transitionAnimate(AnimationState nextState)
-    {
-        animate();
-        currentState = nextState;
-        if (currentImageIndex == currentAnimation.size() - 1)
-        {
-            previousState = currentState;
-            setCurrentAnimation();
-            currentFrame = 0;
-            return true;
-        }
-        else
-            return false;
     }
 
     //---------- Getters ----------//
     //<editor-fold desc="Getters">
-    public AnimationState getCurrentState()
+    AnimationState getCurrentState()
     { return currentState; }
 
-    public AnimationState getPreviousState()
-    { return previousState; }
-
-    public Direction getCurrentDirection()
+    protected Direction getCurrentDirection()
     { return currentDirection; }
-
-    int getAnimationSpeed()
-    { return animationSpeed; }
 
     public BufferedImage getCurrentImage()
     { return currentImage; }
 
     int getCurrentAnimationSize()
     { return currentAnimation.size(); }
+
+    public Direction getDirection()
+    { return currentDirection; }
     //</editor-fold>
 
     //---------- Setters -----------//
     //<editor-fold desc="Setters">
-    public void setCurrentState(AnimationState currentState)
-    { this.currentState = currentState; }
-
-    public void setPreviousState(AnimationState previousState)
-    { this.previousState = previousState; }
-
-    public void setCurrentDirection(Direction currentDirection)
-    { this.currentDirection = currentDirection; }
-
-    void setAnimationSpeed(int animationSpeed)
-    {
-        if (animationSpeed > 0)
-            this.animationSpeed = animationSpeed;
-        else
-            throw new IllegalArgumentException("Animation Speed must be greater than 0!");
-    }
-
     private void setCurrentAnimation()
     {
         switch (currentState)
@@ -179,6 +179,12 @@ public abstract class AnimatedObject
             case JUMPING:
                 currentAnimation = jumpingImages;
                 break;
+            case FALLING:
+                currentAnimation = fallingImages;
+                break;
+            case LANDING:
+                currentAnimation = landingImages;
+                break;
         }
     }
 
@@ -195,6 +201,8 @@ public abstract class AnimatedObject
         setImages(stoppingImages, filename, STOPPING_STRING);
         setImages(changingDirectionImages, filename, CHANGE_DIRECTION_STRING);
         setImages(jumpingImages, filename, JUMPING_STRING);
+        setImages(fallingImages, filename, FALLING_STRING);
+        setImages(landingImages, filename, LANDING_STRING);
     }
 
     private void setImages(ArrayList<BufferedImage> images, String filename, String animation)
@@ -228,6 +236,19 @@ public abstract class AnimatedObject
             }
         }
         while (fileToTest.exists());
+    }
+
+    void setAnimation(@NotNull AnimationState newAnimation)
+    {
+        currentState = newAnimation;
+        currentImageIndex = currentFrame = 0;
+        setCurrentAnimation();
+    }
+
+    void setAnimation(AnimationState newAnimation, AnimationState nextAnimation)
+    {
+        setAnimation(newAnimation);
+        nextState = nextAnimation;
     }
 
     @NotNull

@@ -24,7 +24,6 @@ public class Game extends JComponent
         //---------- Make it Large ----------//
         setSize(frame.getSize());
 
-
         if (!isFullscreen)
         {
             SCREEN_HEIGHT = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().height
@@ -48,7 +47,7 @@ public class Game extends JComponent
     {
         hero = new Hero(GameMain.IMAGES_FOLDER + File.separator + "sprites" + File.separator + "hero",
                 10, 10, 200, AnimationState.IDLE, Direction.RIGHT,
-                25.0, 25.0, 0.1);
+                25.0, 25.0, 0.1, 7.5, .5, 5);
         isRunning = true;
         Thread gameLoop = new Thread(this::runGameLoop);
         gameLoop.start();
@@ -78,6 +77,7 @@ public class Game extends JComponent
                 double TARGET_UPDATE_TIME = NANO_OFFSET / TARGET_UPDATE;
                 while (currentTime - lastUpdate > TARGET_UPDATE_TIME && numberOfUpdates < MAX_UPDATES)
                 {
+                    processInput();
                     updateGame();
                     lastUpdate += TARGET_UPDATE_TIME;
                     numberOfUpdates++;
@@ -122,6 +122,9 @@ public class Game extends JComponent
             }
         }
     }
+
+    private void processInput()
+    { InputManager.processLatestInputs(); }
 
     private void updateGame()
     {

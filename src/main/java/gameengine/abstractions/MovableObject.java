@@ -6,9 +6,8 @@ public abstract class MovableObject extends AnimatedObject
 {
     //---------- Class Variables ----------//
     //<editor-fold desc="Class Variables">
-    private boolean isMoving = false, isGrounded = false, startMoving = false, stopping = false,
-            changingDirection = false;
-    private double currentX, currentY, deltaX, deltaY, elasticity;
+    private boolean isGrounded = false;
+    private double currentX, currentY, deltaX, deltaY, elasticity, jumpHeight, speed, maxSpeed;
     private int width, height;
 
     private double terminalVelocityX, terminalVelocityY;
@@ -16,97 +15,73 @@ public abstract class MovableObject extends AnimatedObject
 
     protected void initializeMovable(String filename, int animationSpeed, double startingX, double startingY,
                                      AnimationState startingState, Direction currentDirection,
-                                     double terminalVelocityX, double terminalVelocityY, double elasticity)
+                                     double terminalVelocityX, double terminalVelocityY, double elasticity,
+                                     double jumpHeight, double speed, double maxSpeed)
     {
         initializeAnimations(filename, animationSpeed, startingState, currentDirection);
         setCurrentX(startingX);
         setCurrentY(startingY);
         setTerminalVelocities(terminalVelocityX, terminalVelocityY);
         setElasticity(elasticity);
+        setJumpHeight(jumpHeight);
+        setSpeed(speed);
+        setMaxSpeed(maxSpeed);
         setSize();
     }
 
     public void move(double interpolation)
     {
-        if (stopping)
+        animationStep(true);
+        calculateMovement(interpolation);
+    }
+
+    public void jump(double jumpHeight)
+    {
+        setAnimation(AnimationState.JUMPING, AnimationState.FALLING);
+        isGrounded = false;
+        setDeltaY(-jumpHeight);
+    }
+
+    public void changeDirection()
+    {
+        if (getCurrentState() != AnimationState.CHANGING_DIRECTION && isGrounded && deltaX == 0.0)
+            setAnimation(AnimationState.CHANGING_DIRECTION, AnimationState.IDLE);
+        else if (getCurrentState() != AnimationState.CHANGING_DIRECTION && isGrounded && deltaX != 0.0)
+            idle();
+    }
+
+    public void run()
+    {
+        if (isGrounded)
         {
-            if (deltaX > 0.0)
-                deltaX -= 2 * (deltaX / getCurrentAnimationSize());
-            calculateMovement(interpolation);
-            setAnimationSpeed(1);
-            setCurrentState(AnimationState.STOPPING);
-            if (transitionAnimate(AnimationState.IDLE))
-            {
-                stopping = false;
-                isMoving = false;
-                startMoving = false;
-            }
+            if (getCurrentState() != AnimationState.START_MOVING && getCurrentState() != AnimationState.MOVING)
+                setAnimation(AnimationState.START_MOVING, AnimationState.MOVING);
+            if (deltaX < maxSpeed)
+                setDeltaX(deltaX + speed);
         }
-        else if (changingDirection)
-        {
-            if (deltaX > 0.0)
-                deltaX -= 2 * (deltaX / getCurrentAnimationSize());
-            calculateMovement(interpolation);
-            setAnimationSpeed(1);
-            setCurrentState(AnimationState.CHANGING_DIRECTION);
-            if (transitionAnimate(AnimationState.IDLE))
-            {
-                stopping = false;
-                startMoving = false;
-                isMoving = false;
-                changingDirection = false;
-                if (getCurrentDirection() == Direction.LEFT)
-                    setCurrentDirection(Direction.RIGHT);
-                else
-                    setCurrentDirection(Direction.LEFT);
-            }
-        }
-        else if (isMoving)
-        {
-            if (deltaX < 5.0)
-                deltaX += 0.5;
-            calculateMovement(interpolation);
-            setAnimationSpeed(1);
-            setCurrentState(AnimationState.MOVING);
-            animate();
-        }
-        else if (startMoving)
-        {
-            deltaX = 0.0;
-            calculateMovement(interpolation);
-            setAnimationSpeed(1);
-            setCurrentState(AnimationState.START_MOVING);
-            if (transitionAnimate(AnimationState.MOVING))
-            {
-                isMoving = true;
-                startMoving = false;
-                stopping = false;
-            }
-        }
-        else
-        {
-            if (!isGrounded)
-                calculateMovement(interpolation);
+        else if (deltaX < maxSpeed)
+                setDeltaX(deltaX + (speed / 5.0));
+    }
+
+    public void idle()
+    {
+        if (deltaX > 0.0 && isGrounded && getCurrentState() != AnimationState.STOPPING
+                && getCurrentState() != AnimationState.IDLE)
+            setAnimation(AnimationState.STOPPING, AnimationState.IDLE);
+        else if (!isGrounded && getCurrentState() != AnimationState.FALLING)
+            setAnimation(AnimationState.FALLING);
+        if (getCurrentState() == AnimationState.IDLE)
             setDeltaX(0.0);
-            setAnimationSpeed(10);
-            setCurrentState(AnimationState.IDLE);
-            animate();
-        }
+        else if (getCurrentState() == AnimationState.STOPPING)
+            setDeltaX(deltaX - 2 * (deltaX / getCurrentAnimationSize()));
+        else if (getCurrentState() == AnimationState.FALLING)
+            setDeltaX(deltaX - 0.05);
     }
 
     public abstract void calculateMovement(double interpolation);
 
     //---------- Getters ----------//
     //<editor-fold desc="Getters">
-    public boolean isMoving()
-    { return isMoving; }
-
-    public boolean isStopping()
-    { return stopping; }
-
-    public boolean changingDirection()
-    { return changingDirection; }
-
     public boolean isGrounded()
     { return isGrounded; }
 
@@ -116,37 +91,22 @@ public abstract class MovableObject extends AnimatedObject
     public double getCurrentY()
     { return currentY; }
 
-    public double getDeltaX()
+    protected double getDeltaX()
     { return deltaX; }
 
-    public double getDeltaY()
+    protected double getDeltaY()
     { return deltaY; }
 
-    public int getWidth()
-    { return width; }
+    public double getJumpHeight()
+    { return jumpHeight; }
 
-    public int getHeight()
-    { return height; }
-
-    public double getElasticity()
-    { return elasticity; }
+    public double getSpeed()
+    { return speed; }
     //</editor-fold>
 
     //---------- Setters ----------//
     //<editor-fold desc="Setters">
-    public void setMoving(boolean isMoving)
-    { this.isMoving = isMoving; }
-
-    public void setStartMoving(boolean startMoving)
-    { this.startMoving = startMoving; }
-
-    public void setStopping(boolean stopping)
-    { this.stopping = stopping; }
-
-    public void setGrounded(boolean isGrounded)
-    { this.isGrounded = isGrounded; }
-
-    public void setCurrentY(double currentY)
+    protected void setCurrentY(double currentY)
     {
         if (currentY + height <= Game.SCREEN_HEIGHT && currentY >= 0.0)
         {
@@ -156,7 +116,10 @@ public abstract class MovableObject extends AnimatedObject
         else if (currentY + height > Game.SCREEN_HEIGHT)
         {
             if (Math.abs(deltaY) < 0.5)
+            {
+                setAnimation(AnimationState.LANDING, AnimationState.IDLE);
                 isGrounded = true;
+            }
             else
                 deltaY = (deltaY * elasticity * -1);
             this.currentY = Game.SCREEN_HEIGHT - height;
@@ -168,7 +131,7 @@ public abstract class MovableObject extends AnimatedObject
         }
     }
 
-    public void setCurrentX(double currentX)
+    protected void setCurrentX(double currentX)
     {
         if (currentX >= 0.0 && currentX + width < Game.SCREEN_WIDTH)
             this.currentX = currentX;
@@ -178,10 +141,10 @@ public abstract class MovableObject extends AnimatedObject
             this.currentX = Game.SCREEN_WIDTH - width;
     }
 
-    public void setDeltaX(double deltaX)
-    { this.deltaX = Math.min(deltaX, terminalVelocityX); }
+    private void setDeltaX(double deltaX)
+    { this.deltaX = Math.max(Math.min(deltaX, terminalVelocityX), 0.0); }
 
-    public void setDeltaY(double deltaY)
+    protected void setDeltaY(double deltaY)
     { this.deltaY = Math.min(deltaY, terminalVelocityY); }
 
     private void setTerminalVelocities(double terminalVelocityX, double terminalVelocityY)
@@ -196,15 +159,35 @@ public abstract class MovableObject extends AnimatedObject
         width = currentImage.getWidth();
     }
 
-    public void changeDirection()
-    { changingDirection = true; }
-
-    public void setElasticity(double elasticity)
+    private void setElasticity(double elasticity)
     {
         if (elasticity > 0.95)
             this.elasticity = 0.95;
         else
             this.elasticity = Math.max(elasticity, 0.0);
+    }
+
+    private void setJumpHeight(double jumpHeight)
+    { this.jumpHeight = Math.max(jumpHeight, 0.0); }
+
+    private void setSpeed(double speed)
+    {
+        if (speed >= 0.0 && speed <= terminalVelocityX)
+            this.speed = speed;
+        else if (speed < 0.0)
+            this.speed = 0.0;
+        else
+            this.speed = terminalVelocityX;
+    }
+
+    private void setMaxSpeed(double maxSpeed)
+    {
+        if (maxSpeed >= speed && maxSpeed <= terminalVelocityX)
+            this.maxSpeed = maxSpeed;
+        else if (maxSpeed < speed)
+            this.maxSpeed = speed;
+        else
+            this.maxSpeed = terminalVelocityX;
     }
     //</editor-fold>
 }

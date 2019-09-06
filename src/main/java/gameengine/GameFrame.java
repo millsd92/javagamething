@@ -2,6 +2,7 @@ package gameengine;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashSet;
 
 class GameFrame extends JFrame
 {
@@ -21,7 +22,7 @@ class GameFrame extends JFrame
             setSize(displayMode.getWidth(), displayMode.getHeight());
 
         //---------- Setting Up Controls ----------//
-        addKeyListener(new MainControls());
+        addKeyListener(new GameKeyListener());
 
         //---------- Add the Game ----------//
         add(new Game(this, isFullscreen));
